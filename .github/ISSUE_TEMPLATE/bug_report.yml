@@ -1,0 +1,38 @@
+name: Bug report
+description: Báo lỗi có thể tái hiện được.
+title: '[BUG] '
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Mô tả lỗi
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Các bước tái hiện
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Kết quả mong đợi
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Môi trường
+      placeholder: Android version, device, branch, commit
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Kiểm tra riêng tư
+      options:
+        - label: Ảnh/log đính kèm không chứa mật khẩu, cookie, token hoặc dữ liệu sinh viên thật.
+          required: true

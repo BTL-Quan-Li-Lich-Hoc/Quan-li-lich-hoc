@@ -1,0 +1,8 @@
+{
+  "editor.formatOnSave": true,
+  "editor.rulers": [80],
+  "dart.lineLength": 80,
+  "dart.previewFlutterUiGuides": true,
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true
+}

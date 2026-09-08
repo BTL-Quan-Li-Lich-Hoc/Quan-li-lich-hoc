@@ -1,0 +1,39 @@
+# Dart / Flutter
+.dart_tool/
+.packages
+.pub/
+build/
+coverage/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Generated local machine files
+android/local.properties
+**/key.properties
+*.jks
+*.keystore
+
+# Secrets / local data
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.db
+*.session
+*.cookie
+cookies/
+sessions/
+secrets/
+private_data/
+
+# IDE / OS
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+.vscode/*.log
+
+# Temporary
+*.tmp
+*.bak

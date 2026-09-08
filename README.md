@@ -1,29 +1,88 @@
-# BÀI TẬP LỚN
+# Better Phenikaa Schedule
 
-## Thông tin nhóm
+Bài tập lớn nhóm 1 — ứng dụng **thời khóa biểu & lịch thi** cho sinh viên Phenikaa University.
 
-**Nhóm:** 1  
-**Số lượng thành viên:** 4 sinh viên
+## Nhóm
 
-### Thành viên
-
-| STT | Họ và tên | MSSV | Vai trò |
+| STT | Họ và tên | MSSV | Vai trò chính |
 |---:|---|---|---|
-| 1 | Đăng Văn Nam Khánh | 24100041 | Mem |
-| 2 | Trần Đỗ Quốc Huy| 21011607 | Mem |
-| 3 | Trần Văn Dương | 24100043 | Mem |
-| 4 | Nguyễn Minh Đạo | 24100222 | Lead |
+| 1 | Đăng Văn Nam Khánh | 24100041 | QLĐT intake / session / parser |
+| 2 | Trần Đỗ Quốc Huy | 21011607 | Timetable + exam UI |
+| 3 | Trần Văn Dương | 24100043 | Local DB + sync |
+| 4 | Nguyễn Minh Đạo | 24100222 | Lead + widget + settings |
 
-## Đề tài
+## Mục tiêu kỹ thuật
 
-**Tên đề tài:** *App thời khóa biểu & lịch thi*
+- Flutter/Dart là stack chính.
+- Đăng nhập qua luồng QLĐT/Microsoft chính thức; không tự thu mật khẩu.
+- Dữ liệu lịch học/lịch thi lưu local để xem offline.
+- Không dùng Firebase/backend/cloud database cho dữ liệu sinh viên.
+- UI không truy vấn SQL trực tiếp; mọi truy cập dữ liệu đi qua repository contract.
+- Widget chỉ đọc `WidgetSnapshot` đã được app ghi local.
+- Đồng bộ lỗi phải giữ nguyên dữ liệu cũ đang dùng được.
 
-## Phân công công việc
-## Khối lượng công việc
+## Stack đã chuẩn hóa
 
-| Thành viên | Khối lượng | Nội dung công việc |
-|---|---|---|
-| **Đăng Văn Nam Khánh** | **Nặng (~27%)** | Đăng nhập QLĐT; quản lý Cookie/Session; kiểm tra trạng thái đăng nhập; đồng bộ dữ liệu lịch học và lịch thi; xử lý session hết hạn; xử lý lỗi mạng và lỗi đồng bộ; parse dữ liệu từ hệ thống QLĐT. |
-| **Trần Đỗ Quốc Huy** | **Nặng (~27%)** | Xây dựng giao diện thời khóa biểu dạng timeline; hiển thị môn học, phòng, giảng viên, tiết học; chuyển ngày/tuần; chọn ngày cụ thể; xem chi tiết môn học; xử lý lịch trống, lịch trùng; animation chuyển ngày. |
-| **Trần Văn Dương** | **Trung bình – Nặng (~23%)** | Thiết kế Room Database; xây dựng Entity, DAO và Repository; lưu trữ lịch học/lịch thi; cập nhật dữ liệu sau đồng bộ; truy vấn theo ngày/tuần; quản lý dữ liệu cũ; hỗ trợ cache và xem lịch khi offline; cung cấp dữ liệu cho UI và Widget. |
-| **Nguyễn Minh Đạo** | **Trung bình – Nặng (~23%)** | Xây dựng Widget 4×1; hiển thị lịch học hiện tại/sắp tới; vuốt ngang giữa các ngày; animation chuyển tiếp; đồng bộ Widget với Database; cập nhật Widget khi dữ liệu thay đổi; xây dựng Settings; xử lý Loading/Empty/Error State; tối ưu hiệu năng, RAM và pin trên Android hiện đại. |
+- Flutter 3.47.2 / Dart 3.13
+- Riverpod + GoRouter
+- Drift/SQLite
+- Dio + CookieJar + InAppWebView + HTML parser
+- Secure Storage + SharedPreferences
+- Home Widget
+- Freezed/JSON codegen
+- Mocktail
+- Very Good Analysis + Riverpod Lint
+- Dev Container + GitHub Actions
+
+## Bắt đầu nhanh
+
+### Cách 1 — Codespaces / Dev Container
+
+1. Mở repo bằng GitHub Codespaces hoặc VS Code Dev Containers.
+2. Container tự chạy `.devcontainer/post-create.sh`.
+3. Script tự tạo platform Android/Web nếu chưa có và chạy `flutter pub get`.
+4. Chạy:
+
+```bash
+bash tool/quality.sh
+flutter run
+```
+
+### Cách 2 — máy local
+
+Yêu cầu Flutter 3.47.2, Dart 3.13, JDK 17 và Android SDK.
+
+```bash
+bash tool/bootstrap.sh
+bash tool/quality.sh
+```
+
+## Nhánh làm việc
+
+- `main`: bản ổn định.
+- `develop`: nhánh tích hợp.
+- `feature/qldt-intake-khanh`
+- `feature/timetable-exam-huy`
+- `feature/local-data-sync-duong`
+- `feature/widget-settings-dao`
+
+Không push tính năng trực tiếp vào `main`. Feature branch mở PR vào `develop`; chỉ merge `develop` vào `main` khi quality gate xanh.
+
+## Contract freeze
+
+Các contract trong `lib/core/contracts/` là điểm nối giữa 4 phần việc. Thay đổi model/repository contract cần Lead và thành viên đang tiêu thụ contract đó review trước khi merge.
+
+## Lệnh chuẩn
+
+```bash
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+bash tool/quality.sh
+flutter build apk --debug
+```
+
+## Quy tắc dữ liệu nhạy cảm
+
+Tuyệt đối không commit mật khẩu, cookie/session thật, token, HTML chứa dữ liệu sinh viên, file DB thật, keystore hoặc ảnh chụp chứa thông tin tài khoản. Xem `SECURITY.md`.
+
+Tài liệu chi tiết: `docs/ARCHITECTURE.md`, `docs/WORKFLOW.md`, `LEADER_FIRST_RUN.md`.

@@ -1,0 +1,8 @@
+# Lead is the default reviewer until all member GitHub usernames are added.
+* @LonelyChromosome
+
+# Contract changes always require lead review.
+/lib/core/contracts/ @LonelyChromosome
+/.github/ @LonelyChromosome
+/.devcontainer/ @LonelyChromosome
+/tool/ @LonelyChromosome

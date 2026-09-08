@@ -1,0 +1,32 @@
+{
+  "name": "Better Phenikaa Schedule",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "remoteUser": "root",
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Flutter web preview",
+      "onAutoForward": "notify"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Dart-Code.dart-code",
+        "Dart-Code.flutter",
+        "eamodio.gitlens",
+        "usernamehw.errorlens"
+      ],
+      "settings": {
+        "dart.flutterSdkPath": "/sdks/flutter",
+        "dart.lineLength": 80,
+        "editor.formatOnSave": true,
+        "editor.rulers": [80]
+      }
+    }
+  }
+}
