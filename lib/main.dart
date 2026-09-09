@@ -4,9 +4,5 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(
-    const ProviderScope(
-      child: BetterPhenikaaScheduleApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: BetterPhenikaaScheduleApp()));
 }
