@@ -36,25 +36,33 @@ Bài tập lớn nhóm 1 — ứng dụng **thời khóa biểu & lịch thi** c
 
 ## Bắt đầu nhanh
 
-### Cách 1 — Codespaces / Dev Container
+### Codespaces / Dev Container — khuyến nghị
 
-1. Mở repo bằng GitHub Codespaces hoặc VS Code Dev Containers.
-2. Container tự chạy `.devcontainer/post-create.sh`.
-3. Script tự tạo platform Android/Web nếu chưa có và chạy `flutter pub get`.
-4. Chạy:
+1. Tạo Codespace trực tiếp trên **feature branch của mình**.
+2. Chọn Dev Container `Better Phenikaa Schedule`.
+3. Container tự cài Flutter 3.47.2, Dart, Android SDK, tắt telemetry, cấu hình Git safe-directory, tạo platform Android/Web nếu thiếu và chạy `flutter pub get`.
+4. Sau khi terminal mở, chỉ cần chạy:
 
 ```bash
-bash tool/quality.sh
-flutter run
+bash tool/setup.sh
 ```
 
-### Cách 2 — máy local
+`tool/setup.sh` sẽ tự bootstrap, format, analyze và test. Không cần tự cài Flutter/Dart/JDK hay sửa Git `safe.directory` thủ công.
 
-Yêu cầu Flutter 3.47.2, Dart 3.13, JDK 17 và Android SDK.
+Trong quá trình code, dùng:
 
 ```bash
-bash tool/bootstrap.sh
 bash tool/quality.sh
+```
+
+Lệnh này tự format code rồi chạy analyze + test.
+
+### Máy local
+
+Yêu cầu Flutter 3.47.2, Dart 3.13, JDK 17 và Android SDK. Sau đó chạy:
+
+```bash
+bash tool/setup.sh
 ```
 
 ## Nhánh làm việc
@@ -75,9 +83,10 @@ Các contract trong `lib/core/contracts/` là điểm nối giữa 4 phần vi�
 ## Lệnh chuẩn
 
 ```bash
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs
+bash tool/setup.sh
 bash tool/quality.sh
+dart run build_runner build --delete-conflicting-outputs
+flutter run
 flutter build apk --debug
 ```
 
