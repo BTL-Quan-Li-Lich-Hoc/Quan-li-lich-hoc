@@ -36,6 +36,34 @@ if [[ ! -d android || ! -d web ]]; then
   fi
 fi
 
+if [[ -d platform/android_widget/app ]]; then
+  cp -R platform/android_widget/app/. android/app/
+
+  python3 - <<'PY'
+from pathlib import Path
+
+manifest = Path('android/app/src/main/AndroidManifest.xml')
+text = manifest.read_text()
+
+receiver = '''        <receiver
+            android:name=".ScheduleWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/schedule_widget_info" />
+        </receiver>
+'''
+
+if '.ScheduleWidgetProvider' not in text:
+    text = text.replace('    </application>', receiver + '    </application>', 1)
+
+manifest.write_text(text)
+PY
+fi
+
 flutter pub get
 
 echo 'Bootstrap complete.'
