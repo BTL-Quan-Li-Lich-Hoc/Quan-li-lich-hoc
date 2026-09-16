@@ -1,3 +1,5 @@
+import 'user_dto.dart';
+
 export 'user_dto.dart';
 
 final class SemesterDto {
