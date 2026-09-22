@@ -22,7 +22,7 @@
         "usernamehw.errorlens"
       ],
       "settings": {
-        "dart.flutterSdkPath": "/sdks/flutter",
+        "dart.flutterSdkPath": "/opt/flutter",
         "dart.lineLength": 80,
         "editor.formatOnSave": true,
         "editor.rulers": [80]

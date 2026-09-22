@@ -5,6 +5,13 @@ plugins:
 
 analyzer:
   exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
     - '**/*.g.dart'
     - '**/*.freezed.dart'
 
