@@ -47,11 +47,18 @@ final class WidgetService {
         through: lastDay,
         now: effectiveNow,
       );
+      final overviewTimeline = OverviewWidgetTimeline(
+        classes.map(OverviewWidgetEntry.fromClass),
+      );
       final selectedSnapshot = timeline.snapshotFor(selected);
       final settings = await _settingsStore.load();
 
       await _snapshotRepository.write(selectedSnapshot);
-      await _platformBridge.publish(timeline: timeline, settings: settings);
+      await _platformBridge.publish(
+        timeline: timeline,
+        overviewTimeline: overviewTimeline,
+        settings: settings,
+      );
 
       return WidgetViewState(
         status: selectedSnapshot == null

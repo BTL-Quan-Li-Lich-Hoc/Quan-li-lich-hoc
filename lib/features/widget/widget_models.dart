@@ -72,6 +72,61 @@ final class WidgetTimeline {
   }
 }
 
+final class OverviewWidgetEntry {
+  const OverviewWidgetEntry({
+    required this.subjectName,
+    required this.room,
+    required this.startAt,
+    required this.endAt,
+  });
+
+  factory OverviewWidgetEntry.fromClass(ClassDto value) {
+    return OverviewWidgetEntry(
+      subjectName: value.subjectName,
+      room: value.room,
+      startAt: value.startAt,
+      endAt: value.endAt,
+    );
+  }
+
+  final String subjectName;
+  final String room;
+  final DateTime startAt;
+  final DateTime endAt;
+
+  Map<String, Object?> toJson() {
+    return <String, Object?>{
+      'subjectName': subjectName,
+      'room': room,
+      'startAt': startAt.toIso8601String(),
+      'endAt': endAt.toIso8601String(),
+      'time': '${_time(startAt)} - ${_time(endAt)}',
+    };
+  }
+}
+
+final class OverviewWidgetTimeline {
+  OverviewWidgetTimeline(Iterable<OverviewWidgetEntry> entries)
+    : entries = List<OverviewWidgetEntry>.unmodifiable(
+        entries.toList()..sort(
+          (OverviewWidgetEntry a, OverviewWidgetEntry b) =>
+              a.startAt.compareTo(b.startAt),
+        ),
+      );
+
+  final List<OverviewWidgetEntry> entries;
+
+  String encode() {
+    final grouped = <String, List<Map<String, Object?>>>{};
+    for (final entry in entries) {
+      grouped
+          .putIfAbsent(_dateKey(entry.startAt), () => <Map<String, Object?>>[])
+          .add(entry.toJson());
+    }
+    return jsonEncode(grouped);
+  }
+}
+
 DateTime _dateOnly(DateTime value) => DateTime(value.year, value.month, value.day);
 
 String _dateKey(DateTime value) {

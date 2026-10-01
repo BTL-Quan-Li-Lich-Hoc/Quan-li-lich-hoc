@@ -1,14 +1,10 @@
-# Widget feature
+# Widget
 
-Phần widget của Đạo chỉ đọc dữ liệu local qua repository contract, không gọi QLĐT hay network trực tiếp.
+Branch ownership: Nguyễn Minh Đạo.
 
-Các lớp chính:
+BTL giữ đúng hai Android home widget:
+1. Widget nhỏ — một lớp hiện tại/sắp tới, có chuyển ngày.
+2. Widget tổng quan — tối đa bốn lớp hiện tại/sắp tới trong hôm nay.
 
-- `WidgetSnapshotSelector`: chọn lớp hiện tại/sắp tới và dựng timeline snapshot theo ngày.
-- `WidgetService`: đọc `ScheduleRepository`, ghi `WidgetSnapshotRepository`, giữ snapshot cũ khi refresh lỗi.
-- `WidgetPlatformBridge` / `HomeWidgetPlatformBridge`: publish snapshot local sang Android Home Widget.
-- `WidgetController`: state loading/ready/empty/error và điều hướng ngày trong app.
-- `WidgetSettings`, `WidgetSettingsStore`, `WidgetSettingsController`: cấu hình hiển thị và auto refresh.
-- `ScheduleWidgetProvider` (Android): render widget 4×1, chuyển ngày bằng nút trước/sau, chạm ngày để về hôm nay.
-
-Native Android được giữ dưới `platform/android_widget/` và được `tool/bootstrap.sh` chép vào Android scaffold khi setup.
+Không mang Theme Engine, Tiên Môn Premium, custom font/theme hoặc assistant panel từ DemoF3.
+Widget chỉ đọc dữ liệu local do Flutter publish.
