@@ -88,10 +88,13 @@ class _AppShell extends StatelessWidget {
           switch (index) {
             case 0:
               context.go('/timetable');
+              return;
             case 1:
               context.go('/exam');
+              return;
             case 2:
               context.go('/account');
+              return;
           }
         },
         destinations: const <NavigationDestination>[
