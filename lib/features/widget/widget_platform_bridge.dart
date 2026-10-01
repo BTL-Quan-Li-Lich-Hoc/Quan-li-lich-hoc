@@ -6,6 +6,7 @@ import 'package:home_widget/home_widget.dart';
 abstract interface class WidgetPlatformBridge {
   Future<void> publish({
     required WidgetTimeline timeline,
+    required OverviewWidgetTimeline overviewTimeline,
     required WidgetSettings settings,
   });
 
@@ -14,12 +15,15 @@ abstract interface class WidgetPlatformBridge {
 
 final class HomeWidgetPlatformBridge implements WidgetPlatformBridge {
   const HomeWidgetPlatformBridge({
-    this.androidProviderName = 'ScheduleWidgetProvider',
+    this.smallAndroidProviderName = 'ScheduleWidgetProvider',
+    this.overviewAndroidProviderName = 'OverviewWidgetProvider',
   });
 
-  final String androidProviderName;
+  final String smallAndroidProviderName;
+  final String overviewAndroidProviderName;
 
   static const _timelineKey = 'widgetTimeline';
+  static const _overviewTimelineKey = 'widgetOverviewTimeline';
   static const _showRoomKey = 'showRoom';
   static const _showTimeKey = 'showTime';
   static const _showDateControlsKey = 'showDateControls';
@@ -31,6 +35,7 @@ final class HomeWidgetPlatformBridge implements WidgetPlatformBridge {
   @override
   Future<void> publish({
     required WidgetTimeline timeline,
+    required OverviewWidgetTimeline overviewTimeline,
     required WidgetSettings settings,
   }) async {
     if (!_supportsHomeWidget) {
@@ -38,13 +43,18 @@ final class HomeWidgetPlatformBridge implements WidgetPlatformBridge {
     }
 
     await HomeWidget.saveWidgetData<String>(_timelineKey, timeline.encode());
+    await HomeWidget.saveWidgetData<String>(
+      _overviewTimelineKey,
+      overviewTimeline.encode(),
+    );
     await HomeWidget.saveWidgetData<bool>(_showRoomKey, settings.showRoom);
     await HomeWidget.saveWidgetData<bool>(_showTimeKey, settings.showTime);
     await HomeWidget.saveWidgetData<bool>(
       _showDateControlsKey,
       settings.showDateControls,
     );
-    await _requestUpdate();
+    await _requestUpdate(smallAndroidProviderName);
+    await _requestUpdate(overviewAndroidProviderName);
   }
 
   @override
@@ -54,13 +64,15 @@ final class HomeWidgetPlatformBridge implements WidgetPlatformBridge {
     }
 
     await HomeWidget.saveWidgetData<String>(_timelineKey, '{}');
-    await _requestUpdate();
+    await HomeWidget.saveWidgetData<String>(_overviewTimelineKey, '{}');
+    await _requestUpdate(smallAndroidProviderName);
+    await _requestUpdate(overviewAndroidProviderName);
   }
 
-  Future<void> _requestUpdate() {
+  Future<void> _requestUpdate(String providerName) {
     return HomeWidget.updateWidget(
-      name: androidProviderName,
-      androidName: androidProviderName,
+      name: providerName,
+      androidName: providerName,
     );
   }
 }
