@@ -5,8 +5,8 @@ class TimetableScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      appBar: AppBar(title: Text('Lịch học')),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Lịch học')),
       body: _FeaturePlaceholder(
         icon: Icons.calendar_view_week_outlined,
         title: 'Khung lịch học',
