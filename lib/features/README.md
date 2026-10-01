@@ -1,32 +1,38 @@
 # Feature ownership
 
-Mỗi thành viên phát triển trong vùng feature của mình, giao tiếp qua `lib/core/contracts/`.
+Source được chia thành 4 mảng độc lập, giao tiếp qua `lib/core/contracts/`.
 
 ## 1. qldt_intake — Đăng Văn Nam Khánh
 
-- QLĐT/Microsoft authenticated flow.
-- Cookie/session lifecycle.
-- Parse timetable/exam HTML/DOM thành `QldtImportPayload`.
-- Không thu hoặc lưu password.
+- Login/session QLĐT.
+- Parser TraCuu, lịch học, lịch thi.
+- Output: `QldtImportPayload`.
+- Không ghi DB trực tiếp.
 
 ## 2. timetable + exam — Trần Đỗ Quốc Huy
 
-- Timeline lịch học/lịch thi.
-- Chuyển ngày/tuần, chi tiết môn, empty/error/loading state.
-- Dùng repository/mock; không query Drift/SQL trực tiếp.
+- UI lịch học và lịch thi.
+- Ngày/tuần, loading/empty/error.
+- Chỉ dùng repository contract.
 
 ## 3. local_data_sync — Trần Văn Dương
 
-- Drift schema, DAO, migration.
+- Drift/SQLite.
 - Repository implementation.
-- Offline cache và replace transaction sau sync thành công.
-- Sync lỗi phải giữ dữ liệu cũ.
+- Offline cache + transaction replace sau sync thành công.
+- Sync lỗi giữ dữ liệu cũ.
 
-## 4. widget + settings — Nguyễn Minh Đạo
+## 4. widget + account/settings — Nguyễn Minh Đạo
 
-- Home-screen widget nhỏ, ưu tiên 1x4/2x2 tùy launcher.
-- Nội dung tối giản: môn, phòng, thời gian start → end.
-- Widget chỉ đọc `WidgetSnapshot`; không tự gọi QLĐT.
-- Settings, logout cleanup, loading/empty/error và tối ưu pin/RAM.
+- Hai Android home widget.
+- Widget chỉ đọc snapshot local.
+- Settings/account cơ bản và integration.
+- Code widget thật ở `feature/widget-settings-dao`, không đặt trên `main`.
 
-Tạo thư mục con khi bắt đầu feature, ví dụ `lib/features/qldt_intake/`.
+## Base BTL không mang từ DemoF3
+
+- Theme Engine và custom theme.
+- Tiên Môn Premium/background động.
+- Assistant personality/panel U1-U18.
+- iOS port và debug harness.
+- Các feature trang trí/experimental không phục vụ quản lý lịch học.
