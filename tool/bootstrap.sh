@@ -17,11 +17,7 @@ if [[ ! -d android || ! -d web ]]; then
   tmp_dir="$(mktemp -d)"
   trap 'rm -rf "${tmp_dir}"' EXIT
 
-  flutter create \
-    --platforms=android,web \
-    --org vn.edu.phenikaa \
-    --project-name better_phenikaa_schedule \
-    "${tmp_dir}/scaffold"
+  flutter create     --platforms=android,web     --org vn.edu.phenikaa     --project-name better_phenikaa_schedule     "${tmp_dir}/scaffold"
 
   if [[ ! -d android ]]; then
     cp -R "${tmp_dir}/scaffold/android" ./android
@@ -34,6 +30,48 @@ if [[ ! -d android || ! -d web ]]; then
   if [[ ! -f .metadata ]]; then
     cp "${tmp_dir}/scaffold/.metadata" ./.metadata
   fi
+fi
+
+if [[ -d platform/android_widget/app ]]; then
+  cp -R platform/android_widget/app/. android/app/
+
+  python3 - <<'PY'
+from pathlib import Path
+
+manifest = Path('android/app/src/main/AndroidManifest.xml')
+text = manifest.read_text()
+
+small_receiver = '''        <receiver
+            android:name=".ScheduleWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/schedule_widget_info" />
+        </receiver>
+'''
+
+overview_receiver = '''        <receiver
+            android:name=".OverviewWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/overview_widget_info" />
+        </receiver>
+'''
+
+if '.ScheduleWidgetProvider' not in text:
+    text = text.replace('    </application>', small_receiver + '    </application>', 1)
+if '.OverviewWidgetProvider' not in text:
+    text = text.replace('    </application>', overview_receiver + '    </application>', 1)
+
+manifest.write_text(text)
+PY
 fi
 
 flutter pub get
