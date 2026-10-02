@@ -1,88 +1,168 @@
 # Better Phenikaa Schedule
 
-Bài tập lớn nhóm 1 — ứng dụng **thời khóa biểu & lịch thi** cho sinh viên Phenikaa University.
+Bài tập lớn môn **Lập trình trên thiết bị di động** — ứng dụng Android hỗ trợ sinh viên Phenikaa theo dõi **lịch học, lịch thi và dữ liệu học tập cá nhân** ngay trên điện thoại.
 
-## Nhóm
+> Đây là sản phẩm học tập của nhóm, không phải ứng dụng chính thức của Phenikaa University.
 
-| STT | Họ và tên | MSSV | Vai trò chính |
-|---:|---|---|---|
-| 1 | Đăng Văn Nam Khánh | 24100041 | QLĐT intake / session / parser |
-| 2 | Trần Đỗ Quốc Huy | 21011607 | Timetable + exam UI |
-| 3 | Trần Văn Dương | 24100043 | Local DB + sync |
-| 4 | Nguyễn Minh Đạo | 24100222 | Lead + widget + settings |
+## 1. Mục tiêu bài tập lớn
 
-## Mục tiêu kỹ thuật
+Ứng dụng tập trung vào các nội dung đúng với môn Lập trình trên thiết bị di động:
 
-- Flutter/Dart là stack chính.
-- Đăng nhập qua luồng QLĐT/Microsoft chính thức; không tự thu mật khẩu.
-- Dữ liệu lịch học/lịch thi lưu local để xem offline.
-- Không dùng Firebase/backend/cloud database cho dữ liệu sinh viên.
-- UI không truy vấn SQL trực tiếp; mọi truy cập dữ liệu đi qua repository contract.
-- Widget chỉ đọc `WidgetSnapshot` đã được app ghi local.
-- Đồng bộ lỗi phải giữ nguyên dữ liệu cũ đang dùng được.
+- Xây dựng ứng dụng mobile bằng Flutter/Dart.
+- Đăng nhập và lấy dữ liệu từ hệ thống QLĐT.
+- Hiển thị lịch học theo ngày/tuần và lịch thi.
+- Lưu dữ liệu local để vẫn xem được khi không có mạng.
+- Đồng bộ dữ liệu mới mà không làm mất cache cũ khi lỗi.
+- Sử dụng Android Home Screen Widget.
+- Xử lý trạng thái ứng dụng, dữ liệu nền, SharedPreferences/SQLite và tương tác native Android.
+- Tổ chức code để phần giao diện và phần xử lý logic có thể phát triển độc lập.
 
-## Stack đã chuẩn hóa
+## 2. Chức năng chính
 
-- Flutter 3.47.2 / Dart 3.13
-- Riverpod + GoRouter
-- Drift/SQLite
-- Dio + CookieJar + InAppWebView + HTML parser
-- Secure Storage + SharedPreferences
-- Home Widget
-- Freezed/JSON codegen
-- Mocktail
-- Very Good Analysis + Riverpod Lint
-- Dev Container + GitHub Actions
+- Đăng nhập QLĐT.
+- Lấy học kỳ hiện tại, danh sách môn, lịch học và lịch thi.
+- Xem lịch học theo ngày và tuần.
+- Xem lịch thi và các ca thi sắp tới.
+- Đồng bộ lại dữ liệu khi người dùng yêu cầu.
+- Xem dữ liệu đã lưu khi offline.
+- Hai Android Widget:
+  - Widget nhỏ: hiển thị môn hiện tại/sắp tới và chuyển ngày.
+  - Widget tổng quan: hiển thị các môn trong ngày.
+- Màn hình tài khoản và cài đặt cơ bản.
 
-## Bắt đầu nhanh
+BTL **không mang Theme Engine, Tiên Môn Premium, assistant personality/panel hoặc các phần thử nghiệm của DemoF3**.
 
-### Cách 1 — Codespaces / Dev Container
+## 3. Phân công nhóm
 
-1. Mở repo bằng GitHub Codespaces hoặc VS Code Dev Containers.
-2. Container tự chạy `.devcontainer/post-create.sh`.
-3. Script tự tạo platform Android/Web nếu chưa có và chạy `flutter pub get`.
-4. Chạy:
+| Thành viên | Phần phụ trách | Nội dung chính |
+|---|---|---|
+| **Đăng Văn Nam Khánh — 24100041** | **Đăng nhập & lấy dữ liệu QLĐT** | WebView/Microsoft login, cookie/session, request QLĐT, lấy dữ liệu thô, kiểm tra session, retry/timeout và xử lý lỗi kết nối |
+| **Trần Đỗ Quốc Huy — 21011607** | **Parser & logic lịch học/lịch thi** | Parse dữ liệu QLĐT, chuẩn hóa môn học, ghép lịch học/lịch thi, lọc theo học kỳ, sắp xếp theo thời gian, xác định môn hiện tại/sắp tới và logic nghiệp vụ lịch |
+| **Trần Văn Dương — 24100043** | **Local DB & đồng bộ dữ liệu** | Drift/SQLite, repository implementation, lưu cache offline, transaction cập nhật dữ liệu, so sánh thay đổi, giữ dữ liệu cũ khi sync thất bại và chuẩn bị snapshot local cho widget |
+| **Nguyễn Minh Đạo — 24100222** | **Lead + toàn bộ UI/UX + Widget + tích hợp** | App shell, navigation, toàn bộ màn hình Flutter, lịch ngày/tuần, lịch thi, login/account/settings UI, loading/empty/error state, hai Android Widget và tích hợp các phần logic của nhóm |
 
-```bash
-bash tool/quality.sh
-flutter run
+### Nguyên tắc phân chia
+
+Ba thành viên **Khánh, Huy, Dương tập trung vào logic và dữ liệu**, không phải dựng giao diện.
+
+**Đạo phụ trách toàn bộ UI/UX và tích hợp cuối**, để giao diện thống nhất và tránh nhiều người sửa cùng một màn hình.
+
+Luồng dữ liệu chung:
+
+```text
+QLĐT
+  ↓
+Khánh: login / session / lấy dữ liệu thô
+  ↓
+Huy: parser / chuẩn hóa / logic lịch
+  ↓
+Dương: local DB / sync / offline cache
+  ↓
+Đạo: UI Flutter + 2 Android Widget
 ```
 
-### Cách 2 — máy local
+## 4. Cấu trúc source
 
-Yêu cầu Flutter 3.47.2, Dart 3.13, JDK 17 và Android SDK.
+```text
+lib/
+  app/                  # app shell, router, navigation
+  core/
+    contracts/          # model + repository interface dùng chung
+  features/
+    qldt_intake/        # Khánh
+    timetable/          # UI do Đạo, logic lịch do Huy cung cấp qua contract
+    exam/               # UI do Đạo, logic lịch thi do Huy cung cấp qua contract
+    local_data_sync/    # Dương
+    account/            # Đạo
+    widget/             # Đạo
+```
+
+Các phần logic giao tiếp với UI thông qua model/repository trong `lib/core/contracts/`. UI không đọc trực tiếp SQL hoặc HTML QLĐT.
+
+## 5. Luồng dữ liệu
+
+```text
+QLĐT authenticated session
+        ↓
+Raw QLĐT data
+        ↓
+Parser + validation
+        ↓
+QldtImportPayload
+        ↓
+Drift / SQLite
+        ↓
+Repository
+   ┌────┼────────┐
+   ↓    ↓        ↓
+Lịch học  Lịch thi  WidgetSnapshot
+   ↓       ↓          ↓
+Flutter UI        Android Widget
+```
+
+## 6. Công nghệ sử dụng
+
+- **Flutter 3.47.2 / Dart 3.13**
+- **Riverpod** — quản lý state
+- **GoRouter** — điều hướng
+- **Drift / SQLite** — lưu dữ liệu local
+- **Dio + CookieJar** — request/session
+- **InAppWebView** — đăng nhập QLĐT
+- **HTML parser** — xử lý dữ liệu web
+- **SharedPreferences / Secure Storage** — lưu cấu hình và session cần thiết
+- **Home Widget + Android native Kotlin/XML** — Android Home Screen Widget
+
+## 7. Nhánh làm việc
+
+- `main` — khung chung và bản tích hợp ổn định.
+- `develop` — tích hợp trước khi đưa vào main.
+- `feature/qldt-intake-khanh` — đăng nhập/session/lấy dữ liệu.
+- `feature/timetable-exam-huy` — parser + logic lịch học/lịch thi.
+- `feature/local-data-sync-duong` — DB + sync + offline.
+- `feature/widget-settings-dao` — UI integration + hai widget.
+
+Mỗi người làm phần logic của mình trên branch riêng. Khi interface/model dùng chung cần thay đổi thì phải báo trước để tránh làm hỏng phần đang được người khác sử dụng.
+
+## 8. Quy tắc dữ liệu
+
+- Không commit mật khẩu, token, cookie/session thật hoặc dữ liệu sinh viên thật.
+- Không lưu mật khẩu người dùng dưới dạng plain text.
+- Dữ liệu lịch học/lịch thi được ưu tiên lưu local.
+- Nếu sync lỗi, dữ liệu cũ vẫn phải sử dụng được.
+- Widget không tự truy cập QLĐT; widget chỉ đọc snapshot local do app chuẩn bị.
+
+## 9. Chạy project
+
+Yêu cầu:
+
+- Flutter 3.47.2
+- Dart 3.13
+- JDK 17
+- Android SDK
 
 ```bash
 bash tool/bootstrap.sh
-bash tool/quality.sh
+flutter pub get
+flutter run
 ```
 
-## Nhánh làm việc
-
-- `main`: bản ổn định.
-- `develop`: nhánh tích hợp.
-- `feature/qldt-intake-khanh`
-- `feature/timetable-exam-huy`
-- `feature/local-data-sync-duong`
-- `feature/widget-settings-dao`
-
-Không push tính năng trực tiếp vào `main`. Feature branch mở PR vào `develop`; chỉ merge `develop` vào `main` khi quality gate xanh.
-
-## Contract freeze
-
-Các contract trong `lib/core/contracts/` là điểm nối giữa 4 phần việc. Thay đổi model/repository contract cần Lead và thành viên đang tiêu thụ contract đó review trước khi merge.
-
-## Lệnh chuẩn
+Kiểm tra project:
 
 ```bash
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs
 bash tool/quality.sh
 flutter build apk --debug
 ```
 
-## Quy tắc dữ liệu nhạy cảm
+## 10. Phạm vi sản phẩm cuối
 
-Tuyệt đối không commit mật khẩu, cookie/session thật, token, HTML chứa dữ liệu sinh viên, file DB thật, keystore hoặc ảnh chụp chứa thông tin tài khoản. Xem `SECURITY.md`.
+Sản phẩm cuối cần chứng minh được các nội dung chính của lập trình mobile:
 
-Tài liệu chi tiết: `docs/ARCHITECTURE.md`, `docs/WORKFLOW.md`, `LEADER_FIRST_RUN.md`.
+- giao diện và navigation hoàn chỉnh;
+- gọi và xử lý dữ liệu từ nguồn ngoài;
+- lưu trữ local;
+- offline;
+- state management;
+- xử lý lỗi;
+- native Android integration;
+- Android Home Screen Widget;
+- build APK chạy được trên thiết bị thật.
