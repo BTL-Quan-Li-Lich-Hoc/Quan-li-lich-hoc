@@ -5,7 +5,7 @@ final GoRouter appRouter = GoRouter(
   routes: <RouteBase>[
     GoRoute(
       path: '/',
-      builder: (context, state) {
+      builder: (BuildContext context, GoRouterState state) {
         return const BootstrapScreen();
       },
     ),
@@ -13,7 +13,7 @@ final GoRouter appRouter = GoRouter(
 );
 
 class BetterPhenikaaScheduleApp extends StatelessWidget {
-  const new({super.key});
+  const BetterPhenikaaScheduleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class BetterPhenikaaScheduleApp extends StatelessWidget {
 }
 
 class BootstrapScreen extends StatelessWidget {
-  const new({super.key});
+  const BootstrapScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
