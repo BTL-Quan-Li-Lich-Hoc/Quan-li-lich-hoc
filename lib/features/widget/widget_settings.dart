@@ -52,10 +52,7 @@ final class WidgetSettingsStore {
     await prefs.setBool(_showRoomKey, value.showRoom);
     await prefs.setBool(_showTimeKey, value.showTime);
     await prefs.setBool(_showDateControlsKey, value.showDateControls);
-    await prefs.setBool(
-      _autoRefreshAfterSyncKey,
-      value.autoRefreshAfterSync,
-    );
+    await prefs.setBool(_autoRefreshAfterSyncKey, value.autoRefreshAfterSync);
   }
 
   Future<void> reset() async {

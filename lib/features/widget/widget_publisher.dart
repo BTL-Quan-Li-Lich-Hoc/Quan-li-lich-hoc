@@ -10,8 +10,7 @@ class ScheduleWidgetPublisher {
       return day.year == now.year &&
           day.month == now.month &&
           day.day == now.day;
-    }).toList()
-      ..sort((a, b) => a.startAt.compareTo(b.startAt));
+    }).toList()..sort((a, b) => a.startAt.compareTo(b.startAt));
 
     final next = todays.isEmpty ? null : todays.first;
     final time = next?.startAt;
@@ -37,12 +36,15 @@ class ScheduleWidgetPublisher {
       'btl_large_body',
       todays.isEmpty
           ? 'Không có buổi học'
-          : todays.take(5).map((entry) {
-              final time = entry.startAt;
-              final hour = time.hour.toString().padLeft(2, '0');
-              final minute = time.minute.toString().padLeft(2, '0');
-              return '$hour:$minute  ${entry.subjectName}';
-            }).join('\n'),
+          : todays
+                .take(5)
+                .map((entry) {
+                  final time = entry.startAt;
+                  final hour = time.hour.toString().padLeft(2, '0');
+                  final minute = time.minute.toString().padLeft(2, '0');
+                  return '$hour:$minute  ${entry.subjectName}';
+                })
+                .join('\n'),
     );
 
     await HomeWidget.updateWidget(androidName: 'BtlSmallWidget');

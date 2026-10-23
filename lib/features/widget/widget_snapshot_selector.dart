@@ -11,13 +11,14 @@ final class WidgetSnapshotSelector {
   }) {
     final dayStart = _dateOnly(selectedDate);
     final dayEnd = dayStart.add(const Duration(days: 1));
-    final candidates = classes
-        .where(
-          (item) =>
-              item.startAt.isBefore(dayEnd) && item.endAt.isAfter(dayStart),
-        )
-        .toList()
-      ..sort((a, b) => a.startAt.compareTo(b.startAt));
+    final candidates =
+        classes
+            .where(
+              (item) =>
+                  item.startAt.isBefore(dayEnd) && item.endAt.isAfter(dayStart),
+            )
+            .toList()
+          ..sort((a, b) => a.startAt.compareTo(b.startAt));
 
     if (candidates.isEmpty) {
       return null;
@@ -26,8 +27,7 @@ final class WidgetSnapshotSelector {
     ClassDto? selected;
     if (_sameDay(dayStart, now)) {
       for (final item in candidates) {
-        final isCurrent =
-            !item.startAt.isAfter(now) && item.endAt.isAfter(now);
+        final isCurrent = !item.startAt.isAfter(now) && item.endAt.isAfter(now);
         if (isCurrent) {
           selected = item;
           break;
