@@ -44,10 +44,7 @@ class BootstrapScreen extends StatelessWidget {
               children: <Widget>[
                 Text(
                   'Better Phenikaa Schedule',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                 ),
                 SizedBox(height: 12),
                 Text(

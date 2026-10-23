@@ -127,7 +127,8 @@ final class OverviewWidgetTimeline {
   }
 }
 
-DateTime _dateOnly(DateTime value) => DateTime(value.year, value.month, value.day);
+DateTime _dateOnly(DateTime value) =>
+    DateTime(value.year, value.month, value.day);
 
 String _dateKey(DateTime value) {
   final month = value.month.toString().padLeft(2, '0');
