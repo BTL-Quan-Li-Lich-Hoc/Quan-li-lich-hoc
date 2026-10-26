@@ -1,3 +1,4 @@
+// Constructor parameters stay public while dependency fields stay private.
 // ignore_for_file: prefer_initializing_formals
 
 import 'package:better_phenikaa_schedule/core/contracts/models.dart';
