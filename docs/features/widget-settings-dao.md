@@ -49,6 +49,12 @@ bash tool/quality.sh
 flutter build apk --debug
 ```
 
+Các test giao diện/điều phối hiện bao phủ:
+- Khởi động app và chuyển giữa chế độ lịch Ngày/Tuần.
+- Trạng thái trống khi chưa kết nối repository.
+- Chuẩn hóa ngày được chọn.
+- Nhận payload theo các contract hiện có.
+
 GitHub Actions trên nhánh này chạy format, analyzer, test và build APK debug. Bản build chỉ được coi là đạt khi workflow thực tế xanh.
 
 ## Quy tắc
