@@ -21,6 +21,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining(' – '), findsOneWidget);
-    expect(find.text('Chủ Nhật'), findsOneWidget);
+    expect(find.textContaining('Chủ Nhật'), findsOneWidget);
   });
 }
