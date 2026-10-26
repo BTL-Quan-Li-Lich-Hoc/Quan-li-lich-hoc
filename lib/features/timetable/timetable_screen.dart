@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 enum TimetableViewMode { day, week }
 
 class TimetableScreen extends StatefulWidget {
-  const TimetableScreen({super.key});
+  const new({super.key});
 
   @override
   State<TimetableScreen> createState() => _TimetableScreenState();
@@ -84,9 +84,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
                 tooltip: 'Khoảng thời gian trước',
                 onPressed: () => unawaited(
                   coordinator.chooseDay(
-                    coordinator.selectedDay.subtract(
-                      Duration(days: dayDelta),
-                    ),
+                    coordinator.selectedDay.subtract(Duration(days: dayDelta)),
                   ),
                 ),
                 icon: const Icon(Icons.chevron_left),
@@ -112,9 +110,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-              onPressed: () => unawaited(
-                coordinator.chooseDay(DateTime.now()),
-              ),
+              onPressed: () => unawaited(coordinator.chooseDay(DateTime.now())),
               child: const Text('Hôm nay'),
             ),
           ),
@@ -135,14 +131,15 @@ class _TimetableScreenState extends State<TimetableScreen> {
     final rangeEnd = rangeStart.add(
       Duration(days: _mode == TimetableViewMode.day ? 1 : 7),
     );
-    final result = coordinator.classes
-        .where(
-          (item) =>
-              item.startAt.isBefore(rangeEnd) &&
-              item.endAt.isAfter(rangeStart),
-        )
-        .toList()
-      ..sort((first, second) => first.startAt.compareTo(second.startAt));
+    final result =
+        coordinator.classes
+            .where(
+              (item) =>
+                  item.startAt.isBefore(rangeEnd) &&
+                  item.endAt.isAfter(rangeStart),
+            )
+            .toList()
+          ..sort((first, second) => first.startAt.compareTo(second.startAt));
     return result;
   }
 
@@ -190,8 +187,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
         padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
         itemCount: visibleClasses.length,
         separatorBuilder: (context, index) => const SizedBox(height: 4),
-        itemBuilder: (context, index) =>
-            _classCard(visibleClasses[index]),
+        itemBuilder: (context, index) => _classCard(visibleClasses[index]),
       );
     }
 
@@ -207,10 +203,11 @@ class _TimetableScreenState extends State<TimetableScreen> {
 
     for (var offset = 0; offset < 7; offset++) {
       final day = weekStart.add(Duration(days: offset));
-      final dailyClasses = visibleClasses
-          .where((item) => isSameScheduleDay(item.startAt, day))
-          .toList()
-        ..sort((first, second) => first.startAt.compareTo(second.startAt));
+      final dailyClasses =
+          visibleClasses
+              .where((item) => isSameScheduleDay(item.startAt, day))
+              .toList()
+            ..sort((first, second) => first.startAt.compareTo(second.startAt));
 
       children.add(
         Padding(
@@ -248,9 +245,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
         : item.lecturer;
     return Card(
       child: ListTile(
-        leading: const CircleAvatar(
-          child: Icon(Icons.menu_book_outlined),
-        ),
+        leading: const CircleAvatar(child: Icon(Icons.menu_book_outlined)),
         title: Text(item.subjectName),
         subtitle: Text('${item.subjectCode} • $room\n$lecturer'),
         isThreeLine: true,

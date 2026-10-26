@@ -7,7 +7,7 @@ import 'package:better_phenikaa_schedule/core/contracts/models.dart';
 import 'package:flutter/material.dart';
 
 class ExamScreen extends StatelessWidget {
-  const ExamScreen({super.key});
+  const new({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +35,7 @@ class ExamScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(
-    ScheduleCoordinator coordinator,
-    List<ExamDto> exams,
-  ) {
+  Widget _buildContent(ScheduleCoordinator coordinator, List<ExamDto> exams) {
     if (coordinator.status == ScheduleLoadStatus.loading) {
       return const Center(
         child: Column(
@@ -81,9 +78,7 @@ class ExamScreen extends StatelessWidget {
         final room = exam.room.isEmpty ? 'Chưa có phòng' : exam.room;
         return Card(
           child: ListTile(
-            leading: const CircleAvatar(
-              child: Icon(Icons.assignment_outlined),
-            ),
+            leading: const CircleAvatar(child: Icon(Icons.assignment_outlined)),
             title: Text(exam.subjectName),
             subtitle: Text(
               '${exam.subjectCode} • ${formatScheduleDay(exam.startAt)}\n$room',

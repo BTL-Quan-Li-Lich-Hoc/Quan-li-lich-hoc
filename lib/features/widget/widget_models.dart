@@ -5,7 +5,7 @@ import 'package:better_phenikaa_schedule/core/contracts/models.dart';
 enum WidgetStatus { idle, loading, ready, empty, error }
 
 final class WidgetViewState {
-  const WidgetViewState({
+  const new({
     required this.status,
     required this.selectedDate,
     this.snapshot,
@@ -13,7 +13,7 @@ final class WidgetViewState {
     this.updatedAt,
   });
 
-  factory WidgetViewState.initial(DateTime selectedDate) {
+  factory initial(DateTime selectedDate) {
     return WidgetViewState(
       status: WidgetStatus.idle,
       selectedDate: _dateOnly(selectedDate),
@@ -30,7 +30,7 @@ final class WidgetViewState {
 }
 
 final class WidgetTimelineEntry {
-  const WidgetTimelineEntry({required this.date, required this.snapshot});
+  const new({required this.date, required this.snapshot});
 
   final DateTime date;
   final WidgetSnapshot snapshot;
@@ -47,7 +47,7 @@ final class WidgetTimelineEntry {
 }
 
 final class WidgetTimeline {
-  WidgetTimeline(Iterable<WidgetTimelineEntry> entries)
+  new(Iterable<WidgetTimelineEntry> entries)
     : entries = List<WidgetTimelineEntry>.unmodifiable(entries);
 
   final List<WidgetTimelineEntry> entries;
@@ -73,14 +73,14 @@ final class WidgetTimeline {
 }
 
 final class OverviewWidgetEntry {
-  const OverviewWidgetEntry({
+  const new({
     required this.subjectName,
     required this.room,
     required this.startAt,
     required this.endAt,
   });
 
-  factory OverviewWidgetEntry.fromClass(ClassDto value) {
+  factory fromClass(ClassDto value) {
     return OverviewWidgetEntry(
       subjectName: value.subjectName,
       room: value.room,
@@ -106,12 +106,9 @@ final class OverviewWidgetEntry {
 }
 
 final class OverviewWidgetTimeline {
-  OverviewWidgetTimeline(Iterable<OverviewWidgetEntry> entries)
+  new(Iterable<OverviewWidgetEntry> entries)
     : entries = List<OverviewWidgetEntry>.unmodifiable(
-        entries.toList()..sort(
-          (OverviewWidgetEntry a, OverviewWidgetEntry b) =>
-              a.startAt.compareTo(b.startAt),
-        ),
+        entries.toList()..sort((a, b) => a.startAt.compareTo(b.startAt)),
       );
 
   final List<OverviewWidgetEntry> entries;

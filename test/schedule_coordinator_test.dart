@@ -4,9 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('starts empty until repositories are connected', () async {
-    final coordinator = ScheduleCoordinator(
-      initialDay: DateTime(2026, 10, 26),
-    );
+    final coordinator = ScheduleCoordinator(initialDay: DateTime(2026, 10, 26));
 
     await coordinator.load();
 
@@ -16,9 +14,7 @@ void main() {
   });
 
   test('normalizes the selected date before reloading', () async {
-    final coordinator = ScheduleCoordinator(
-      initialDay: DateTime(2026, 10, 26),
-    );
+    final coordinator = ScheduleCoordinator(initialDay: DateTime(2026, 10, 26));
 
     await coordinator.chooseDay(DateTime(2026, 10, 27, 19, 45));
 
@@ -45,12 +41,15 @@ void main() {
       endAt: DateTime(2026, 11, 2, 15),
     );
     final payload = QldtImportPayload(
-      user: const UserDto(studentId: 'test', displayName: 'Sinh viên thử nghiệm'),
+      user: const UserDto(
+        studentId: 'test',
+        displayName: 'Sinh viên thử nghiệm',
+      ),
       semester: SemesterDto(
         id: '2026-1',
         name: 'Học kỳ 1',
         startDate: DateTime(2026, 8),
-        endDate: DateTime(2027, 1),
+        endDate: DateTime(2027),
       ),
       classes: <ClassDto>[classItem],
       exams: <ExamDto>[examItem],

@@ -5,7 +5,7 @@ import 'package:better_phenikaa_schedule/features/widget/widget_service.dart';
 import 'package:flutter/foundation.dart';
 
 final class WidgetController extends ChangeNotifier {
-  WidgetController({required WidgetService service, DateTime? initialDate})
+  new({required WidgetService service, DateTime? initialDate})
     : _service = service,
       _state = WidgetViewState.initial(initialDate ?? DateTime.now());
 
