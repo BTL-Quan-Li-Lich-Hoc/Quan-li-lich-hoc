@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_initializing_formals
+
 import 'package:better_phenikaa_schedule/core/contracts/models.dart';
 import 'package:better_phenikaa_schedule/core/contracts/repositories.dart';
 import 'package:better_phenikaa_schedule/features/widget/widget_models.dart';
