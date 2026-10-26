@@ -74,6 +74,12 @@ manifest.write_text(text)
 PY
 fi
 
+# Tạm tương thích plugin InAppWebView đang dùng cấu hình ProGuard cũ với AGP 9.
+# Gỡ tùy chọn này khi plugin chuyển sang proguard-android-optimize.txt.
+if [[ -f android/gradle.properties ]] && ! grep -q '^android.r8.proguardAndroidTxt.disallowed=' android/gradle.properties; then
+  printf '\nandroid.r8.proguardAndroidTxt.disallowed=false\n' >> android/gradle.properties
+fi
+
 flutter pub get
 
 echo 'Bootstrap complete.'
