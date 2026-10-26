@@ -21,6 +21,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining(' – '), findsOneWidget);
-    expect(find.textContaining('Chủ Nhật'), findsOneWidget);
+    expect(
+      find.text('Không có buổi học trong tuần đã chọn.'),
+      findsOneWidget,
+    );
   });
 }
