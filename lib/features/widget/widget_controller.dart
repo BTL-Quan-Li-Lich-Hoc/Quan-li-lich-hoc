@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_initializing_formals
+
 import 'package:better_phenikaa_schedule/features/widget/widget_models.dart';
 import 'package:better_phenikaa_schedule/features/widget/widget_service.dart';
 import 'package:flutter/foundation.dart';
