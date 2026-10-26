@@ -2,7 +2,7 @@ import 'package:better_phenikaa_schedule/core/contracts/models.dart';
 import 'package:better_phenikaa_schedule/features/widget/widget_models.dart';
 
 final class WidgetSnapshotSelector {
-  const WidgetSnapshotSelector();
+  const new();
 
   WidgetSnapshot? selectForDate({
     required Iterable<ClassDto> classes,

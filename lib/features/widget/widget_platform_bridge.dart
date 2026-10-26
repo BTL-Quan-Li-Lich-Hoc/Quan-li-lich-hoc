@@ -14,7 +14,7 @@ abstract interface class WidgetPlatformBridge {
 }
 
 final class HomeWidgetPlatformBridge implements WidgetPlatformBridge {
-  const HomeWidgetPlatformBridge({
+  const new({
     this.smallAndroidProviderName = 'ScheduleWidgetProvider',
     this.overviewAndroidProviderName = 'OverviewWidgetProvider',
   });

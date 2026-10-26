@@ -6,15 +6,12 @@ enum ScheduleLoadStatus { idle, loading, ready, empty, error }
 
 /// Coordinates schedule and exam data shared by the Flutter screens.
 final class ScheduleCoordinator extends ChangeNotifier {
-  ScheduleCoordinator({
-    ScheduleRepository? scheduleRepository,
-    ExamRepository? examRepository,
-    QldtIntakeRepository? qldtRepository,
+  new({
+    this._scheduleRepository,
+    this._examRepository,
+    this._qldtRepository,
     DateTime? initialDay,
-  }) : _scheduleRepository = scheduleRepository,
-       _examRepository = examRepository,
-       _qldtRepository = qldtRepository,
-       selectedDay = _dateOnly(initialDay ?? DateTime.now());
+  }) : selectedDay = _dateOnly(initialDay ?? DateTime.now());
 
   ScheduleRepository? _scheduleRepository;
   ExamRepository? _examRepository;
@@ -107,9 +104,7 @@ final class ScheduleCoordinator extends ChangeNotifier {
         scheduleRepository == null ||
         examRepository == null) {
       showError(
-        StateError(
-          'Chưa kết nối đủ repository QLĐT, lịch học và lịch thi.',
-        ),
+        StateError('Chưa kết nối đủ repository QLĐT, lịch học và lịch thi.'),
       );
       return;
     }
