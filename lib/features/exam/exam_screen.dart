@@ -7,7 +7,7 @@ import 'package:better_phenikaa_schedule/core/contracts/models.dart';
 import 'package:flutter/material.dart';
 
 class ExamScreen extends StatelessWidget {
-  const new({super.key});
+  const ExamScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
