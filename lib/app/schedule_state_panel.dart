@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ScheduleStatePanel extends StatelessWidget {
-  const new({
+  const ScheduleStatePanel({
     required this.icon,
     required this.title,
     required this.message,
