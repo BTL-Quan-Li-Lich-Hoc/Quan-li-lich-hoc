@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 enum TimetableViewMode { day, week }
 
 class TimetableScreen extends StatefulWidget {
-  const new({super.key});
+  const TimetableScreen({super.key});
 
   @override
   State<TimetableScreen> createState() => _TimetableScreenState();
