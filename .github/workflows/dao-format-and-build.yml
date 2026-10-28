@@ -1,23 +1,36 @@
-name: Dao branch formatting and Android build
+name: Kiểm tra và build Android
 
 on:
   push:
     branches:
       - feature/widget-settings-dao
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - '**.dart'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'android/**'
+      - 'platform/android_widget/**'
+      - 'tool/bootstrap.sh'
+      - '.github/workflows/dao-format-and-build.yml'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: android-quality-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  format-test-build:
+  quality:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -31,19 +44,8 @@ jobs:
           cache: true
       - name: Bootstrap
         run: bash tool/bootstrap.sh
-      - name: Apply Dart analyzer fixes
-        run: dart fix --apply
-      - name: Apply Dart formatter
-        run: dart format lib test
-      - name: Commit source fixes only if necessary
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- lib test
-          if ! git diff --cached --quiet; then
-            git commit -m "Sửa định dạng và cảnh báo Dart"
-            git push origin HEAD:feature/widget-settings-dao
-          fi
+      - name: Check Dart formatting
+        run: dart format --output=none --set-exit-if-changed lib test
       - name: Analyze
         run: flutter analyze
       - name: Test
@@ -53,6 +55,6 @@ jobs:
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: dao-branch-debug-apk
+          name: android-debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
           retention-days: 7
