@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final class WidgetSettings {
-  const new({
+  const WidgetSettings({
     this.showRoom = true,
     this.showTime = true,
     this.showDateControls = true,
@@ -30,7 +30,7 @@ final class WidgetSettings {
 }
 
 final class WidgetSettingsStore {
-  const new();
+  const WidgetSettingsStore();
 
   static const _showRoomKey = 'widget.showRoom';
   static const _showTimeKey = 'widget.showTime';
@@ -65,7 +65,7 @@ final class WidgetSettingsStore {
 }
 
 final class WidgetSettingsController extends ChangeNotifier {
-  new({WidgetSettingsStore? store})
+  WidgetSettingsController({WidgetSettingsStore? store})
     : _store = store ?? const WidgetSettingsStore();
 
   final WidgetSettingsStore _store;
