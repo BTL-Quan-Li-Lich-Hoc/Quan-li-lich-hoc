@@ -25,7 +25,7 @@ final GoRouter appRouter = GoRouter(
 );
 
 class BetterPhenikaaScheduleApp extends StatefulWidget {
-  const new({super.key});
+  const BetterPhenikaaScheduleApp({super.key});
 
   @override
   State<BetterPhenikaaScheduleApp> createState() =>
@@ -54,7 +54,7 @@ class _BetterPhenikaaScheduleAppState extends State<BetterPhenikaaScheduleApp> {
 }
 
 class _AppShell extends StatelessWidget {
-  const new({required this.location, required this.child});
+  const _AppShell({required this.location, required this.child});
 
   final String location;
   final Widget child;
