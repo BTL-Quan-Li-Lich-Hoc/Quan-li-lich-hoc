@@ -9,7 +9,7 @@ import 'package:better_phenikaa_schedule/features/widget/widget_settings.dart';
 import 'package:better_phenikaa_schedule/features/widget/widget_snapshot_selector.dart';
 
 final class WidgetService {
-  new({
+  WidgetService({
     required ScheduleRepository scheduleRepository,
     required WidgetSnapshotRepository snapshotRepository,
     WidgetPlatformBridge? platformBridge,
