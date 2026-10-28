@@ -6,7 +6,7 @@ enum ScheduleLoadStatus { idle, loading, ready, empty, error }
 
 /// Coordinates schedule and exam data shared by the Flutter screens.
 final class ScheduleCoordinator extends ChangeNotifier {
-  new({
+  ScheduleCoordinator({
     this._scheduleRepository,
     this._examRepository,
     this._qldtRepository,
