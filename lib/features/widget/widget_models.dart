@@ -5,7 +5,7 @@ import 'package:better_phenikaa_schedule/core/contracts/models.dart';
 enum WidgetStatus { idle, loading, ready, empty, error }
 
 final class WidgetViewState {
-  const new({
+  const WidgetViewState({
     required this.status,
     required this.selectedDate,
     this.snapshot,
@@ -30,7 +30,7 @@ final class WidgetViewState {
 }
 
 final class WidgetTimelineEntry {
-  const new({required this.date, required this.snapshot});
+  const WidgetTimelineEntry({required this.date, required this.snapshot});
 
   final DateTime date;
   final WidgetSnapshot snapshot;
@@ -47,7 +47,7 @@ final class WidgetTimelineEntry {
 }
 
 final class WidgetTimeline {
-  new(Iterable<WidgetTimelineEntry> entries)
+  WidgetTimeline(Iterable<WidgetTimelineEntry> entries)
     : entries = List<WidgetTimelineEntry>.unmodifiable(entries);
 
   final List<WidgetTimelineEntry> entries;
@@ -73,7 +73,7 @@ final class WidgetTimeline {
 }
 
 final class OverviewWidgetEntry {
-  const new({
+  const OverviewWidgetEntry({
     required this.subjectName,
     required this.room,
     required this.startAt,
@@ -106,7 +106,7 @@ final class OverviewWidgetEntry {
 }
 
 final class OverviewWidgetTimeline {
-  new(Iterable<OverviewWidgetEntry> entries)
+  OverviewWidgetTimeline(Iterable<OverviewWidgetEntry> entries)
     : entries = List<OverviewWidgetEntry>.unmodifiable(
         entries.toList()..sort((a, b) => a.startAt.compareTo(b.startAt)),
       );
