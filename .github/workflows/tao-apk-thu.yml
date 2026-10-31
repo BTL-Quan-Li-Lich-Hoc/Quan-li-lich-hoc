@@ -5,7 +5,13 @@ on:
     branches:
       - test/integration-20261031
     paths:
-      - .github/workflows/tao-apk-thu.yml
+      - 'lib/**'
+      - 'android/**'
+      - 'assets/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'tool/bootstrap.sh'
+      - '.github/workflows/tao-apk-thu.yml'
   workflow_dispatch:
 
 permissions:
@@ -37,6 +43,9 @@ jobs:
 
       - name: Chạy bài kiểm tra
         run: flutter test
+
+      - name: Kiểm tra Android
+        run: cd android && ./gradlew :app:testDebugUnitTest
 
       - name: Tạo bản cài Android
         run: flutter build apk --release
