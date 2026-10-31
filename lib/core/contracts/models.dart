@@ -1,12 +1,12 @@
 final class UserDto {
-  const new({required this.studentId, required this.displayName});
+  const UserDto({required this.studentId, required this.displayName});
 
   final String studentId;
   final String displayName;
 }
 
 final class SemesterDto {
-  const new({
+  const SemesterDto({
     required this.id,
     required this.name,
     required this.startDate,
@@ -20,7 +20,7 @@ final class SemesterDto {
 }
 
 final class ClassDto {
-  const new({
+  const ClassDto({
     required this.id,
     required this.subjectCode,
     required this.subjectName,
@@ -40,7 +40,7 @@ final class ClassDto {
 }
 
 final class ExamDto {
-  const new({
+  const ExamDto({
     required this.id,
     required this.subjectCode,
     required this.subjectName,
@@ -58,7 +58,7 @@ final class ExamDto {
 }
 
 final class QldtImportPayload {
-  const new({
+  const QldtImportPayload({
     required this.user,
     required this.semester,
     required this.classes,
@@ -74,7 +74,7 @@ final class QldtImportPayload {
 }
 
 final class WidgetSnapshot {
-  const new({
+  const WidgetSnapshot({
     required this.subjectName,
     required this.room,
     required this.startAt,

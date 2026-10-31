@@ -16,7 +16,6 @@ fi
 if [[ ! -d android || ! -d web ]]; then
   tmp_dir="$(mktemp -d)"
   trap 'rm -rf "${tmp_dir}"' EXIT
-
   flutter create \
     --platforms=android,web \
     --org vn.edu.phenikaa \
@@ -26,16 +25,14 @@ if [[ ! -d android || ! -d web ]]; then
   if [[ ! -d android ]]; then
     cp -R "${tmp_dir}/scaffold/android" ./android
   fi
-
   if [[ ! -d web ]]; then
     cp -R "${tmp_dir}/scaffold/web" ./web
   fi
-
   if [[ ! -f .metadata ]]; then
     cp "${tmp_dir}/scaffold/.metadata" ./.metadata
   fi
 fi
 
+bash tool/install_android_widgets.sh
 flutter pub get
-
 echo 'Bootstrap complete.'

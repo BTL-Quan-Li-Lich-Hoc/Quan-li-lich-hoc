@@ -2,48 +2,48 @@
 
 ## 1. Mở môi trường chuẩn
 
-Khuyến nghị mở repo bằng Codespaces/Dev Container. Container pin Flutter 3.47.2 + Dart 3.13 + JDK 17.
+Khuyến nghị dùng GitHub Codespaces / Dev Container. Container pin Flutter 3.47.2, Dart 3.13 và JDK 17. Sau khi tạo Codespace, `postCreateCommand` tự chạy `tool/bootstrap.sh`.
+
+Nếu cần chạy lại thủ công:
 
 ```bash
 bash tool/bootstrap.sh
-bash tool/quality.sh
 ```
 
-`bootstrap.sh` tự sinh `android/`, `web/`, `.metadata` khi chưa có và chạy `flutter pub get`.
+Bootstrap:
+- tạo Android/Web scaffold nếu còn thiếu;
+- cài Kotlin/XML cho hai Android home widgets từ `platform/android_widget/`;
+- chạy `flutter pub get`.
 
-## 2. File nên commit sau lần bootstrap đầu
+Không cần tự cài Flutter trên máy host khi dùng Codespaces.
 
-Sau khi kiểm tra build thành công, Lead có thể commit platform scaffold và `pubspec.lock` để tất cả thành viên dùng đúng transitive dependency:
-
-```bash
-git add android web .metadata pubspec.lock
-git commit -m "chore: pin generated flutter platform scaffold"
-```
-
-Không commit `android/local.properties` hoặc key ký app.
-
-## 3. Quality gate
+## 2. Kiểm tra trước khi push
 
 ```bash
 bash tool/quality.sh
 flutter build apk --debug
 ```
 
-## 4. Branch policy nên bật trên GitHub
+`tool/quality.sh` chạy Dart format, Flutter analyze và Flutter tests.
 
-Cho `main` và `develop`:
+## 3. Quy trình nhánh
 
-- Require pull request before merging.
-- Require CI status check.
-- Block force push.
-- Require conversation resolution.
+- Thành viên làm trên feature branch đã phân công.
+- Push branch cá nhân và mở PR vào `develop`.
+- Bản tích hợp cuối ngày dùng `feature/btl-integration-day10`.
+- Không push trực tiếp hoặc force-push vào `main`.
+- Chỉ merge PR khi format, analyze, tests và APK build đạt.
 
-`main` chỉ nhận thay đổi đã qua `develop`, trừ hotfix do Lead quản lý.
+## 4. Commit
 
-## 5. Contract review
+Commit message ngắn, tiếng Việt, trung tính, chỉ mô tả thay đổi; không ghi tên, username, chữ ký hoặc lời nhắn cá nhân.
 
-Bất kỳ PR nào sửa `lib/core/contracts/` phải được Lead và ít nhất một consumer của contract review. Điều này giúp TV1/TV3 thay implementation mà TV2/TV4 không phải sửa dây chuyền.
+Ví dụ: `Thêm giao diện lịch ngày và tuần`.
 
-## 6. Mobile test
+## 5. Android widget
 
-Codespaces phù hợp để analyze/test/build APK và chạy Flutter Web preview; không coi web preview là thay thế test Android thật. APK từ workflow `Build APK` dùng để cài lên máy Android test.
+Mã Kotlin/XML gốc nằm trong `platform/android_widget/`. Thư mục `android/` được Flutter tạo tại môi trường build; không commit scaffold sinh tự động. Hai provider chỉ đọc snapshot local do Flutter publish qua `home_widget`, không gọi QLĐT.
+
+## 6. Kiểm thử thiết bị
+
+GitHub Actions xác nhận format, analyze, tests và build APK. Vẫn cần cài APK lên điện thoại Android, thêm hai widget từ launcher và kiểm tra hiển thị/kích thước thực tế. Flutter Web preview không thay thế bước này.

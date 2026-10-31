@@ -1,14 +1,23 @@
 import 'package:better_phenikaa_schedule/app/app.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('app boots to the bootstrap screen', (tester) async {
+  testWidgets('app opens timetable with day and week views', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(child: BetterPhenikaaScheduleApp()),
+      const BetterPhenikaaScheduleApp(initializeLocalData: false),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Better Phenikaa Schedule'), findsOneWidget);
+    expect(find.text('Lịch học'), findsWidgets);
+    expect(find.text('Lịch thi'), findsOneWidget);
+    expect(find.text('Ngày'), findsOneWidget);
+    expect(find.text('Tuần'), findsOneWidget);
+    expect(find.text('Chưa có lịch học'), findsOneWidget);
+
+    await tester.tap(find.text('Tuần'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining(' – '), findsOneWidget);
+    expect(find.text('Không có buổi học trong tuần đã chọn.'), findsOneWidget);
   });
 }
