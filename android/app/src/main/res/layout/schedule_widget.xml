@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/schedule_widget_outline"
+    android:clipChildren="true"
+    android:clipToOutline="true"
+    android:clipToPadding="true"
+    android:outlineProvider="background">
+
+    <ImageView
+        android:id="@+id/widget_theme_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:contentDescription="@null"
+        android:focusable="false"
+        android:scaleType="fitXY" />
+
+    <StackView
+        android:id="@+id/widget_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:animateFirstView="false"
+        android:animateLayoutChanges="false"
+        android:inAnimation="@animator/widget_instant_in"
+        android:outAnimation="@animator/widget_instant_out"
+        android:clickable="true"
+        android:clipChildren="true"
+        android:clipToPadding="true"
+        android:loopViews="false" />
+
+    <!--
+      Atomic refresh cover. During collection/theme invalidation Samsung Launcher can
+      briefly lay out several StackView children at once. The provider puts a fully
+      rendered first card here before invalidating the collection, then hides it only
+      after the refreshed stack is stable. This prevents both overlapping text and
+      the old peek/edge artifacts without disabling swipe navigation.
+    -->
+    <ImageView
+        android:id="@+id/widget_refresh_cover"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:contentDescription="@null"
+        android:focusable="false"
+        android:scaleType="fitXY"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/widget_premium_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:contentDescription="@null"
+        android:focusable="false"
+        android:src="@drawable/tien_mon_widget_gold_frame"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/widget_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:paddingStart="18dp"
+        android:paddingEnd="44dp"
+        android:text="Không có lịch học"
+        android:textColor="#FFFFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/widget_stack_peek_mask"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:layout_gravity="bottom|end"
+        android:clickable="false"
+        android:contentDescription="@null"
+        android:focusable="false"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/widget_actions"
+        android:layout_width="44dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/widget_calendar_hit"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:contentDescription="Chọn ngày hiển thị">
+            <ImageView
+                android:id="@+id/widget_calendar"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:clickable="false"
+                android:src="@drawable/ic_widget_calendar" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/widget_reload_hit"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:contentDescription="Đồng bộ QLĐT">
+            <ImageView
+                android:id="@+id/widget_reload"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:clickable="false"
+                android:src="@drawable/ic_widget_reload" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/widget_mode_hit"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:contentDescription="Chuyển lịch học và lịch thi">
+            <ImageView
+                android:id="@+id/widget_mode"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:clickable="false"
+                android:src="@drawable/ic_widget_bell" />
+        </FrameLayout>
+    </LinearLayout>
+</FrameLayout>

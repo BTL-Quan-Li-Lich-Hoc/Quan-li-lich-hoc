@@ -1,94 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_root"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_host"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/schedule_widget_background"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:padding="10dp">
+    android:background="@drawable/schedule_widget_outline"
+    android:clipChildren="true"
+    android:clipToOutline="true"
+    android:clipToPadding="true"
+    android:outlineProvider="background">
 
-    <LinearLayout
-        android:id="@+id/widget_date_controls"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="horizontal">
+    <FrameLayout
+        android:id="@+id/widget_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/widget_previous"
-            android:layout_width="32dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="‹"
-            android:textColor="#FFFFFFFF"
-            android:textSize="26sp" />
-
-        <TextView
-            android:id="@+id/widget_date"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:maxLines="1"
-            android:text="--/--"
-            android:textColor="#FFFFFFFF"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/widget_next"
-            android:layout_width="32dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="›"
-            android:textColor="#FFFFFFFF"
-            android:textSize="26sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/widget_content"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/widget_subject"
+        <ImageView
+            android:id="@+id/widget_theme_background"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
+            android:layout_height="match_parent"
+            android:clickable="false"
+            android:contentDescription="@null"
+            android:focusable="false"
+            android:scaleType="fitXY" />
+
+        <StackView
+            android:id="@+id/widget_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:animateFirstView="false"
+            android:animateLayoutChanges="false"
+            android:inAnimation="@animator/widget_instant_in"
+            android:outAnimation="@animator/widget_instant_out"
+            android:clickable="true"
+            android:clipChildren="true"
+            android:clipToPadding="true"
+            android:loopViews="false" />
+
+        <TextView
+            android:id="@+id/widget_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingStart="18dp"
+            android:paddingEnd="48dp"
             android:text="Không có lịch học"
             android:textColor="#FFFFFFFF"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
-        <LinearLayout
+        <ImageView
+            android:id="@+id/widget_refresh_cover"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:orientation="horizontal">
+            android:layout_height="match_parent"
+            android:clickable="false"
+            android:contentDescription="@null"
+            android:focusable="false"
+            android:scaleType="fitXY"
+            android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/widget_room"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textColor="#DDE7FF"
-                android:textSize="12sp" />
+        <ImageView
+            android:id="@+id/widget_stack_peek_mask"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:layout_gravity="bottom|end"
+            android:clickable="false"
+            android:contentDescription="@null"
+            android:focusable="false"
+            android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/widget_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:maxLines="1"
-                android:textColor="#DDE7FF"
-                android:textSize="12sp" />
-        </LinearLayout>
-    </LinearLayout>
-</LinearLayout>
+        <ImageView
+            android:id="@+id/widget_calendar"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:contentDescription="Chọn ngày hiển thị"
+            android:focusable="true"
+            android:padding="7dp"
+            android:src="@drawable/ic_widget_calendar" />
+    </FrameLayout>
+</FrameLayout>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget2_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/schedule_widget_outline"
+    android:clipToOutline="false"
+    android:outlineProvider="background">
+
+    <ImageView
+        android:id="@+id/widget2_static_layer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="fitXY" />
+
+    <ImageView
+        android:id="@+id/widget2_content_layer"
+        android:layout_width="218dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:contentDescription="Nội dung lịch"
+        android:scaleType="fitXY" />
+
+    <LinearLayout
+        android:id="@+id/widget2_day_actions"
+        android:layout_width="28dp"
+        android:layout_height="76dp"
+        android:layout_gravity="center_vertical|end"
+        android:layout_marginEnd="92dp"
+        android:gravity="center"
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/widget2_previous"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:contentDescription="Ngày trước"
+            android:padding="5dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_widget_up" />
+        <ImageView
+            android:id="@+id/widget2_next"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:contentDescription="Ngày tiếp theo"
+            android:padding="5dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_widget_down" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/widget2_actions"
+        android:layout_width="84dp"
+        android:layout_height="34dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="5dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <ImageView
+            android:id="@+id/widget2_calendar"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="Chọn ngày"
+            android:padding="6dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_widget_calendar" />
+        <ImageView
+            android:id="@+id/widget2_reload"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="Đồng bộ"
+            android:padding="6dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_widget_reload" />
+        <ImageView
+            android:id="@+id/widget2_mode"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="Đổi lịch học và lịch thi"
+            android:padding="6dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_widget_bell" />
+    </LinearLayout>
+    <ImageView
+        android:id="@+id/widget2_border_layer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:focusable="false"
+        android:contentDescription="@null"
+        android:scaleType="fitXY"
+        android:visibility="gone" />
+
+</FrameLayout>
