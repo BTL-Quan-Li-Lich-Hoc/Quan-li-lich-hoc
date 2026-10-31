@@ -1,0 +1,130 @@
+name: Ghép bản Nhom10 vào nhánh thử
+
+on:
+  push:
+    branches:
+      - test/integration-20261031
+    paths:
+      - .github/workflows/ghep-nhom10.yml
+
+permissions:
+  contents: write
+
+jobs:
+  ghep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - name: Lấy nhánh thử
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Lấy bản Nhom10 đã kiểm tra
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch main https://github.com/LonelyChromosome/nhom10.git /tmp/nhom10
+          git -C /tmp/nhom10 fetch --depth 1 origin 4a8d13a939cd9766db83dbd1b0e6e4da37948932
+          git -C /tmp/nhom10 checkout --detach 4a8d13a939cd9766db83dbd1b0e6e4da37948932
+          test "$(git -C /tmp/nhom10 rev-parse HEAD)" = 4a8d13a939cd9766db83dbd1b0e6e4da37948932
+
+      - name: Chép mã và giữ phần gốc trong lịch sử
+        shell: bash
+        run: |
+          set -euo pipefail
+          src=/tmp/nhom10
+          git config user.name "Nhóm 10"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          mkdir -p docs
+          rm -rf lib test integration_test android platform assets web tool tools
+          for path in lib test integration_test android platform assets web tool tools; do
+            cp -a "$src/$path" "./$path"
+          done
+          cp "$src/pubspec.yaml" pubspec.yaml
+          cp "$src/pubspec.lock" pubspec.lock
+          cp "$src/analysis_options.yaml" analysis_options.yaml
+          cp "$src/LICENSE" LICENSE
+          cp "$src/NOTICE" NOTICE
+          cp "$src/PRIVACY.md" PRIVACY.md
+          cp "$src/README.md" docs/README_Nhom10.md
+          cp "$src/.gitignore" .gitignore
+          cat > docs/DOI_CHIEU_BAN_THU.md <<'EOF'
+          # Bản thử đối chiếu Nhom10
+
+          Mã nguồn ứng dụng, các bài kiểm tra và phần Android của bản thử
+          được lấy từ repo LonelyChromosome/nhom10, mã
+          4a8d13a939cd9766db83dbd1b0e6e4da37948932.
+
+          Đây là bản thử để so sánh khả năng chạy và chức năng. Các thay đổi
+          trước đó của nhóm Lập trình di động vẫn còn trong lịch sử nhánh và
+          các nhánh thành viên, chưa đưa vào main.
+
+          README chính giữ nội dung phân công của nhóm Lập trình di động.
+          Giữ giấy phép và thông báo nguồn từ bản Nhom10.
+
+          Muốn kiểm tra nhanh:
+          - bash tool/bootstrap.sh
+          - flutter analyze --no-fatal-infos --no-fatal-warnings
+          - flutter test
+          - flutter build apk --release
+
+          Việc build thành công chưa xác nhận đăng nhập với QLĐT thật
+          hoặc hoạt động của widget trên điện thoại cụ thể.
+          EOF
+
+          git add -A -- lib/core lib/features/dang_nhap_qldt lib/features/dong_bo_hang_ngay tools
+          git diff --cached --quiet || git commit -m "Bổ sung đăng nhập và đồng bộ"
+
+          git add -A -- lib/app lib/main.dart lib/features/lich_hoc lib/features/tien_ich_lich_hoc lib/theme
+          git diff --cached --quiet || git commit -m "Hoàn thiện lịch học và lịch thi"
+
+          git add -A -- lib/features/giao_dien lib/features/app_update lib/features/tro_li lib/tien_mon_premium_demo.dart assets
+          git diff --cached --quiet || git commit -m "Bổ sung giao diện và tiện ích"
+
+          git add -A -- android platform web pubspec.yaml pubspec.lock analysis_options.yaml
+          git diff --cached --quiet || git commit -m "Hoàn thiện phần Android"
+
+          git add -A
+          git diff --cached --quiet || git commit -m "Bổ sung kiểm tra và tài liệu"
+          git push origin HEAD:test/integration-20261031
+
+      - name: Cài Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Cài Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.2'
+          channel: stable
+          cache: true
+
+      - name: Chuẩn bị dự án
+        run: bash tool/bootstrap.sh
+
+      - name: Kiểm tra mã
+        id: kiem_tra
+        continue-on-error: true
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Chạy bài kiểm tra
+        id: thu
+        continue-on-error: true
+        run: flutter test --reporter expanded
+
+      - name: Đóng gói APK
+        id: apk
+        continue-on-error: true
+        run: flutter build apk --release
+
+      - name: Kết luận
+        if: always()
+        shell: bash
+        run: |
+          test "${{ steps.kiem_tra.outcome }}" = success
+          test "${{ steps.thu.outcome }}" = success
+          test "${{ steps.apk.outcome }}" = success
