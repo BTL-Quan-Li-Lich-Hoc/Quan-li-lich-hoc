@@ -75,4 +75,38 @@ manifest.write_text(source)
 PY
 fi
 
+# flutter_secure_storage requires Android compile SDK 37.
+# Keep the generated Android scaffold local to the test workflow, as in Nhom10.
+if [[ -f android/settings.gradle.kts && -f android/app/build.gradle.kts ]]; then
+  python3 - <<'PY'
+from pathlib import Path
+import re
+settings = Path('android/settings.gradle.kts')
+txt = settings.read_text()
+txt = re.sub(
+    r'id\("com\.android\.application"\) version "[^"]+" apply false',
+    'id("com.android.application") version "9.1.1" apply false',
+    txt,
+    count=1,
+)
+settings.write_text(txt)
+app = Path('android/app/build.gradle.kts')
+txt = app.read_text()
+txt = re.sub(r'compileSdk\s*=\s*[^\n]+', 'compileSdk = 37', txt, count=1)
+app.write_text(txt)
+PY
+  sdkmanager_bin=""
+  if command -v sdkmanager >/dev/null 2>&1; then
+    sdkmanager_bin="$(command -v sdkmanager)"
+  elif [[ -n "${ANDROID_SDK_ROOT:-}" && -x "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" ]]; then
+    sdkmanager_bin="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+  elif [[ -n "${ANDROID_HOME:-}" && -x "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" ]]; then
+    sdkmanager_bin="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+  fi
+  if [[ -n "${sdkmanager_bin}" ]]; then
+    yes | "${sdkmanager_bin}" --licenses >/dev/null 2>&1 || true
+    "${sdkmanager_bin}" "platforms;android-37.0" "build-tools;37.0.0"
+  fi
+fi
+
 echo 'Bootstrap complete.'
