@@ -1,9 +1,10 @@
-# widget
+# Widget
 
-Implementation widget không nằm trên main.
+Branch ownership: Nguyễn Minh Đạo.
 
-Hai widget Android của Lead được phát triển ở branch:
-`feature/widget-settings-dao`
+BTL giữ đúng hai Android home widget:
+1. Widget nhỏ — một lớp hiện tại/sắp tới, có chuyển ngày.
+2. Widget tổng quan — tối đa bốn lớp hiện tại/sắp tới trong hôm nay.
 
-Main chỉ giữ contract `WidgetSnapshotRepository` để local-data và widget nối với nhau.
-Không đưa Theme Engine hoặc theme Tiên Môn vào BTL.
+Không mang Theme Engine, Tiên Môn Premium, custom font/theme hoặc assistant panel từ DemoF3.
+Widget chỉ đọc dữ liệu local do Flutter publish.

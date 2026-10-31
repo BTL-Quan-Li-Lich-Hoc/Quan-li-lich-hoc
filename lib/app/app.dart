@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'package:better_phenikaa_schedule/app/schedule_coordinator.dart';
+import 'package:better_phenikaa_schedule/features/local_data_sync/local_schedule_store.dart';
 import 'package:better_phenikaa_schedule/features/account/account_screen.dart';
 import 'package:better_phenikaa_schedule/features/exam/exam_screen.dart';
 import 'package:better_phenikaa_schedule/features/qldt_intake/qldt_login_screen.dart';
@@ -46,8 +49,47 @@ final GoRouter appRouter = GoRouter(
   ],
 );
 
-class BetterPhenikaaScheduleApp extends StatelessWidget {
+class BetterPhenikaaScheduleApp extends StatefulWidget {
   const BetterPhenikaaScheduleApp({super.key});
+
+  @override
+  State<BetterPhenikaaScheduleApp> createState() =>
+      _BetterPhenikaaScheduleAppState();
+}
+
+class _BetterPhenikaaScheduleAppState extends State<BetterPhenikaaScheduleApp> {
+  LocalScheduleStore? _store;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_openCachedSchedule());
+  }
+
+  Future<void> _openCachedSchedule() async {
+    try {
+      final store = await LocalScheduleStore.open();
+      if (!mounted) {
+        await store.dispose();
+        return;
+      }
+      _store = store;
+      scheduleCoordinator.attachRepositories(
+        scheduleRepository: store,
+        examRepository: store,
+      );
+      await scheduleCoordinator.load();
+    } on Object catch (error) {
+      if (mounted) scheduleCoordinator.showError(error);
+    }
+  }
+
+  @override
+  void dispose() {
+    final store = _store;
+    if (store != null) unawaited(store.dispose());
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
