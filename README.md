@@ -1,5 +1,8 @@
 # Better Phenikaa Schedule
 
+> **Lưu ý về nhánh test:** Nhánh `test/integration-20261031` dùng bộ mã Nhom10 để thử đầy đủ chức năng và so sánh khả năng chạy. Đây không phải bản chốt của bài tập lớn. Phân công và phạm vi chính thức bên dưới vẫn áp dụng cho `main`. Xem [nguồn bản thử](docs/DOI_CHIEU_BAN_THU.md) và [README của Nhom10](docs/README_Nhom10.md).
+
+
 Bài tập lớn môn **Lập trình trên thiết bị di động** — ứng dụng Android hỗ trợ sinh viên Phenikaa theo dõi **lịch học, lịch thi và dữ liệu học tập cá nhân** ngay trên điện thoại.
 
 > Đây là sản phẩm học tập của nhóm, không phải ứng dụng chính thức của Phenikaa University.
