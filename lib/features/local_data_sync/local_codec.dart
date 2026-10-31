@@ -2,8 +2,7 @@ import 'dart:convert';
 
 import 'package:better_phenikaa_schedule/core/contracts/models.dart';
 
-/// Portable JSON for one atomic SharedPreferences cache entry.
-/// SQLite/Drift migration can replace this codec without changing contracts.
+
 class LocalCacheCodec {
   const LocalCacheCodec._();
 
