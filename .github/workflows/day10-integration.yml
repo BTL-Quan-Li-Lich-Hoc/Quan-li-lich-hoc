@@ -6,6 +6,10 @@ on:
       - feature/btl-integration-day10
   workflow_dispatch:
 
+concurrency:
+  group: day10-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -40,6 +44,8 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add lib test
             git commit -m "Chuẩn hóa mã nguồn"
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
       - name: Phân tích mã nguồn
