@@ -36,8 +36,11 @@ final class WidgetService {
   }) async {
     final effectiveNow = now ?? DateTime.now();
     final selected = _dateOnly(selectedDate);
-    final firstDay = selected.subtract(const Duration(days: _daysBefore));
-    final lastDay = selected.add(const Duration(days: _daysAfter));
+    final today = _dateOnly(effectiveNow);
+    final firstAnchor = today.isBefore(selected) ? today : selected;
+    final lastAnchor = today.isAfter(selected) ? today : selected;
+    final firstDay = firstAnchor.subtract(const Duration(days: _daysBefore));
+    final lastDay = lastAnchor.add(const Duration(days: _daysAfter));
     final rangeEnd = lastDay.add(const Duration(days: 1));
 
     try {
