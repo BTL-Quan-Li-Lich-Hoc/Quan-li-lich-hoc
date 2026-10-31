@@ -1,0 +1,50 @@
+name: Đóng gói bản thử
+
+on:
+  push:
+    branches:
+      - test/integration-20261031
+    paths:
+      - .github/workflows/tao-apk-thu.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dong-goi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Cài Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Cài Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.2'
+          channel: stable
+          cache: true
+
+      - name: Chuẩn bị dự án
+        run: bash tool/bootstrap.sh
+
+      - name: Chạy bài kiểm tra
+        run: flutter test
+
+      - name: Tạo bản cài Android
+        run: flutter build apk --release
+
+      - name: Lưu bản cài
+        uses: actions/upload-artifact@v4
+        with:
+          name: Better-Phenikaa-ban-thu
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
