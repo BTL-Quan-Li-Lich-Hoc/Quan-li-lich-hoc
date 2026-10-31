@@ -17,9 +17,10 @@ void main() {
     final selected = DateTime(2026, 12, 15);
     final todayClass = _class('today', DateTime(2026, 10, 31, 8));
     final selectedClass = _class('selected', DateTime(2026, 12, 15, 8));
-    final repository = _MemoryScheduleRepository(
-      <ClassDto>[todayClass, selectedClass],
-    );
+    final repository = _MemoryScheduleRepository(<ClassDto>[
+      todayClass,
+      selectedClass,
+    ]);
     final snapshots = _MemorySnapshotRepository();
     final bridge = _MemoryWidgetPlatformBridge();
     final service = WidgetService(
@@ -30,14 +31,8 @@ void main() {
 
     await service.refresh(selectedDate: selected, now: now);
 
-    expect(
-      bridge.timeline?.snapshotFor(now)?.subjectName,
-      'today',
-    );
-    expect(
-      bridge.timeline?.snapshotFor(selected)?.subjectName,
-      'selected',
-    );
+    expect(bridge.timeline?.snapshotFor(now)?.subjectName, 'today');
+    expect(bridge.timeline?.snapshotFor(selected)?.subjectName, 'selected');
     expect(snapshots.value?.subjectName, 'selected');
     expect(repository.requestedFrom, DateTime(2026, 10, 17));
   });
