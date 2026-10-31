@@ -5,7 +5,6 @@ import 'package:better_phenikaa_schedule/core/contracts/repositories.dart';
 import 'package:better_phenikaa_schedule/features/local_data_sync/local_codec.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Atomic single-key offline cache. A failed validation/write keeps old state.
 class LocalScheduleStore implements ScheduleRepository, ExamRepository, WidgetSnapshotRepository {
   LocalScheduleStore._(this._prefs, this._current);
   static const cacheKey = 'btl_schedule_cache_v1';
