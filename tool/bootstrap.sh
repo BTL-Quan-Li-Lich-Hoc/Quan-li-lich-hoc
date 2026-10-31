@@ -38,4 +38,14 @@ fi
 
 flutter pub get
 
+# Compatibility workaround used in the independently buildable Nhom10 repo.
+# flutter_inappwebview_android 1.1.3 references a legacy ProGuard configuration
+# rejected by modern Android Gradle Plugin versions. Patch only the disposable
+# PUB_CACHE on this test runner; no third-party source is committed.
+inappwebview_gradle="${PUB_CACHE:-${HOME}/.pub-cache}/hosted/pub.dev/flutter_inappwebview_android-1.1.3/android/build.gradle"
+if [[ -f "${inappwebview_gradle}" ]] && grep -q "getDefaultProguardFile('proguard-android.txt')" "${inappwebview_gradle}"; then
+  sed -i "s/getDefaultProguardFile('proguard-android.txt')/getDefaultProguardFile('proguard-android-optimize.txt')/g" "${inappwebview_gradle}"
+  echo 'Patched flutter_inappwebview_android release ProGuard compatibility.'
+fi
+
 echo 'Bootstrap complete.'
