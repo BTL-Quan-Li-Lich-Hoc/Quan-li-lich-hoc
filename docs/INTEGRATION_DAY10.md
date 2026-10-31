@@ -46,3 +46,7 @@ Flutter 3.47.2 sinh Android scaffold trong `tool/bootstrap.sh`. Mã Kotlin/XML n
 - QLĐT intake hiện có raw JSON boundary và parser; chưa có repository đăng nhập/session QLĐT thực tế được nối vào app.
 - Không tự chèn dữ liệu lịch giả vào cache.
 - Cần cài APK lên thiết bị Android và thêm cả hai widget từ launcher để xác minh giao diện thực tế.
+
+## CI trên nhánh tích hợp
+
+Workflow `.github/workflows/day10-integration.yml` chạy trên nhánh `feature/btl-integration-day10`: chuẩn hóa Dart, phân tích mã nguồn, chạy Flutter tests, build APK debug/release và lưu APK release thành artifact `lich-hoc-apk-ngay-10`.
