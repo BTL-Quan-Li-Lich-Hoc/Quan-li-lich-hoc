@@ -13,7 +13,9 @@ class QldtRawDocument {
     }
     final rows = parsed['Data'] ?? parsed['schedule'] ?? parsed['rows'];
     if (rows is! List) {
-      throw const FormatException('Không tìm thấy danh sách Data / schedule / rows.');
+      throw const FormatException(
+        'Không tìm thấy danh sách Data / schedule / rows.',
+      );
     }
     if (rows.length > 10000) {
       throw const FormatException('Tệp lịch học có quá nhiều bản ghi.');

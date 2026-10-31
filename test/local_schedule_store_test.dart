@@ -45,10 +45,7 @@ void main() {
 
     await store.replaceImport(payload);
     final classes = await store
-        .watchRange(
-          from: DateTime(2026, 10, 31),
-          to: DateTime(2026, 11, 1),
-        )
+        .watchRange(from: DateTime(2026, 10, 31), to: DateTime(2026, 11, 1))
         .first;
     final exams = await store.watchAll().first;
 

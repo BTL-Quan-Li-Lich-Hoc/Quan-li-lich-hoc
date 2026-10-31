@@ -20,20 +20,14 @@ final GoRouter appRouter = GoRouter(
           path: '/timetable',
           builder: (context, state) => const TimetableScreen(),
         ),
-        GoRoute(
-          path: '/exam',
-          builder: (context, state) => const ExamScreen(),
-        ),
+        GoRoute(path: '/exam', builder: (context, state) => const ExamScreen()),
       ],
     ),
   ],
 );
 
 class BetterPhenikaaScheduleApp extends StatefulWidget {
-  const BetterPhenikaaScheduleApp({
-    super.key,
-    this.initializeLocalData = true,
-  });
+  const BetterPhenikaaScheduleApp({super.key, this.initializeLocalData = true});
 
   final bool initializeLocalData;
 
