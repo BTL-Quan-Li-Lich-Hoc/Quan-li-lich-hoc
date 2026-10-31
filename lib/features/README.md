@@ -1,38 +1,22 @@
-# Feature ownership
+# Cau truc feature DemoF3
 
-Source được chia thành 4 mảng độc lập, giao tiếp qua `lib/core/contracts/`.
+> Luoi mo QLDT khong co nghia la duoc phep sap code nhu mot bai tap nop luc 23:59.
 
-## 1. qldt_intake — Đăng Văn Nam Khánh
+Ten nhanh thu muc trong `features/` dung tieng Viet khong dau. Ten bat buoc cua
+Flutter, Android, API QLDT va cac lop da public duoc giu on dinh de tranh loi
+tuong thich.
 
-- Login/session QLĐT.
-- Parser TraCuu, lịch học, lịch thi.
-- Output: `QldtImportPayload`.
-- Không ghi DB trực tiếp.
+- `dang_nhap_qldt/`: dang nhap Microsoft/QLDT, phien WebView va parse du lieu.
+- `dong_bo_hang_ngay/`: cau noi lap lich dong bo nen luc khoang 06:00.
+- `tien_ich_lich_hoc/`: snapshot toi gian va cap nhat widget.
+- `giao_dien/`: preset cu va Theme Engine moi.
+  - `bo_may/`: nguon theme, sinh token, contrast va token dung chung.
+  - `bang_mau_anh/`: giam mau va trich mau dai dien tren thiet bi.
+  - `phoi_mau/`: tron 2-3 mau theo ty le.
+  - `phong_chu/`: font he thong, font tich hop va font nhap tu may.
+  - `tep_cuc_bo/`: doc tep private da duoc Android Storage Access Framework sao chep.
+  - `du_lieu/`: luu va khoi phuc custom theme.
+  - `xem_truoc/`: editor, preview, luu, sua, xoa va ap dung theme.
 
-## 2. timetable + exam — Trần Đỗ Quốc Huy
-
-- UI lịch học và lịch thi.
-- Ngày/tuần, loading/empty/error.
-- Chỉ dùng repository contract.
-
-## 3. local_data_sync — Trần Văn Dương
-
-- Drift/SQLite.
-- Repository implementation.
-- Offline cache + transaction replace sau sync thành công.
-- Sync lỗi giữ dữ liệu cũ.
-
-## 4. widget + account/settings — Nguyễn Minh Đạo
-
-- Hai Android home widget.
-- Widget chỉ đọc snapshot local.
-- Settings/account cơ bản và integration.
-- Code widget thật ở `feature/widget-settings-dao`, không đặt trên `main`.
-
-## Base BTL không mang từ DemoF3
-
-- Theme Engine và custom theme.
-- Tiên Môn Premium/background động.
-- Assistant personality/panel U1-U18.
-- iOS port và debug harness.
-- Các feature trang trí/experimental không phục vụ quản lý lịch học.
+Khong chia code theo ten thanh vien. Anh, font va custom theme chi duoc xu ly va
+luu cuc bo; khong co analytics, tracker hay upload len dich vu ben thu ba.

@@ -1,0 +1,38 @@
+{
+  "Success": true,
+  "Data": [
+    {
+      "PHANLOAI": "LICHHOC",
+      "TENHOCPHAN": "Thiết kế web nâng cao",
+      "TENLOPHOCPHAN": "WEB-2026-LT",
+      "NGAYHOC": "23/09/2026",
+      "GIOBATDAU": 7,
+      "PHUTBATDAU": 0,
+      "GIOKETTHUC": 9,
+      "PHUTKETTHUC": 0,
+      "PHONGHOC_TEN": "A1"
+    },
+    {
+      "PHANLOAI": "LICHHOC",
+      "TENHOCPHAN": "Thiết kế web nâng cao",
+      "TENLOPHOCPHAN": "WEB-2026-TH",
+      "NGAYHOC": "24/09/2026",
+      "GIOBATDAU": 9,
+      "PHUTBATDAU": 0,
+      "GIOKETTHUC": 11,
+      "PHUTKETTHUC": 0,
+      "PHONGHOC_TEN": "B2"
+    },
+    {
+      "PHANLOAI": "LICHTHI",
+      "TENHOCPHAN": "Thiết kế web nâng cao",
+      "TENLOPHOCPHAN": "WEB-2026-LT",
+      "NGAYHOC": "10/12/2026",
+      "GIOBATDAU": 8,
+      "PHUTBATDAU": 0,
+      "GIOKETTHUC": 10,
+      "PHUTKETTHUC": 0,
+      "PHONGTHI": "C3"
+    }
+  ]
+}
