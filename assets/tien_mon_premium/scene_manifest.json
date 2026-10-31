@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "themeKey": "tien_mon_premium",
+  "fontFamily": "FzCoTrang",
+  "fontFallbackPolicy": {
+    "neverRenderTofu": true,
+    "knownUnsupportedGlyphs": ["•", "·", "–", "—"]
+  },
+  "app": {
+    "crossfadeMs": 3000,
+    "persistentBackground": true,
+    "liveWallpaper": true,
+    "scenes": [
+      {"id": 1, "start": "04:30", "end": "07:00", "asset": "assets/tien_mon_premium/app_backgrounds/tienmon_1_1440x2560.png", "sha256": "3cf6aea2aa50bfeb6e2579f73675d7c0b2b8796eac0288c39386972ef840cbc3"},
+      {"id": 2, "start": "07:00", "end": "10:00", "asset": "assets/tien_mon_premium/app_backgrounds/tienmon_2_1440x2560.png", "sha256": "001e9ee15101ec7fe88b5f1f6d7b78c38637506c2bcf89c0139ff91398f1511f"},
+      {"id": 3, "start": "10:00", "end": "16:00", "asset": "assets/tien_mon_premium/app_backgrounds/tienmon_3_1440x2560.png", "sha256": "330bb9539d5a093bc1e86230a122c266bf8a6e378fdd34c898ff52ce26dc8b52"},
+      {"id": 4, "start": "16:00", "end": "17:00", "asset": "assets/tien_mon_premium/app_backgrounds/tienmon_4_1440x2560.png", "sha256": "e36ee371ebfbc4637f1f0e3a654306eefcb3b2500032686230ae1842b8f0d659"},
+      {"id": 5, "start": "17:00", "end": "18:30", "asset": "assets/tien_mon_premium/app_backgrounds/tienmon_5_1440x2560.png", "sha256": "b5f40b34567ea7db08d45fca86fd15619c100c003e0b5db3586c1d7f30b99bfe"},
+      {"id": 6, "start": "18:30", "end": "21:00", "asset": "assets/tien_mon_premium/app_backgrounds/tienmon_6_1440x2560.png", "sha256": "1a953c5cd9febbd5dafbbab95fcc2e2b26dfe52f1fe02817339bf946de1e8f76"},
+      {"id": 7, "start": "21:00", "end": "02:30", "asset": "assets/tien_mon_premium/app_backgrounds/tienmon_7_1440x2560.png", "sha256": "b815b90165177c98c9ca3c872d52f519715deae58dcfb773ef8d8092dae6675d"},
+      {"id": 8, "start": "02:30", "end": "04:30", "asset": "assets/tien_mon_premium/app_backgrounds/tienmon_8_1440x2560.png", "sha256": "5edef3e6c2180ea36105208326227922f523b26abc7c346afd63a76b3cafd786"}
+    ]
+  },
+  "overviewWidget": {
+    "continuousMotion": false,
+    "scenes": [
+      {"id": "morning", "start": "05:00", "end": "16:30", "asset": "assets/tien_mon_premium/widget_overview/wid_sang.png", "sourceSize": [2020, 779], "sha256": "77ab81b16374d894f036dcddf40deaefe1c1f50f95dd3adbe2bf723d55c042e4"},
+      {"id": "afternoon", "start": "16:30", "end": "18:30", "asset": "assets/tien_mon_premium/widget_overview/wid_chieu.png", "sourceSize": [1774, 887], "sha256": "c0612706eecf76ee32cbd02401ad1d094f322de9da1432b56ccee6c0fe404fa0"},
+      {"id": "night", "start": "18:30", "end": "05:00", "asset": "assets/tien_mon_premium/widget_overview/w_toi.png", "sourceSize": [1774, 887], "sha256": "5a4b62a7a81b6ac62798bd41ea9f2f88ec55da707421b341fdfcd77b9bac510a"}
+    ]
+  },
+  "sourceBundles": {
+    "wallpapersZipSha256": "6986484b506492ed740b17e43d45be5c44cdd78ed9d88fb9597972b76a101586",
+    "fontSha256": "1a7b3066c5bb45bf7d3073280a8f27d77dc5b050a4dd564390468dd9071aaeea",
+    "widgetZipSha256": "d60270f36a268237ee9722c9a006e58d46eba8bc76815eb457457522d5f8e91c"
+  }
+}
