@@ -1,0 +1,59 @@
+name: Kiểm tra tích hợp ngày 10
+
+on:
+  push:
+    branches:
+      - feature/btl-integration-day10
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Cài Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Cài Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.2'
+          channel: stable
+          cache: true
+      - name: Chuẩn bị dự án
+        run: bash tool/bootstrap.sh
+      - name: Chuẩn hóa mã Dart
+        run: dart format lib test
+      - name: Lưu định dạng đã chuẩn hóa
+        run: |
+          if ! git diff --quiet -- lib test; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add lib test
+            git commit -m "Chuẩn hóa mã nguồn"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+      - name: Phân tích mã nguồn
+        run: flutter analyze --no-fatal-infos
+      - name: Chạy kiểm thử Flutter
+        run: flutter test --reporter expanded
+      - name: Build APK debug
+        run: flutter build apk --debug
+      - name: Build APK release
+        run: flutter build apk --release
+      - name: Lưu APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: lich-hoc-apk-ngay-10
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14

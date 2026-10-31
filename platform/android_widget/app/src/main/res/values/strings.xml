@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Better Phenikaa Schedule</string>
+    <string name="widget_small_name">Lịch học nhanh</string>
+    <string name="widget_small_description">Buổi học hiện tại hoặc sắp tới</string>
+    <string name="widget_overview_name">Tổng quan lịch học</string>
+    <string name="widget_overview_description">Các buổi học trong ngày</string>
+</resources>

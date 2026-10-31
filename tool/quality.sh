@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-printf '\n== Format ==\n'
-dart format lib test
-
-printf '\n== Analyze ==\n'
-flutter analyze
-
-printf '\n== Test ==\n'
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze --no-fatal-infos
 flutter test
