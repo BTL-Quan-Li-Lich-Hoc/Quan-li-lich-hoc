@@ -2,56 +2,67 @@
 
 ## Nguyên tắc
 
-Kiến trúc feature-first + contract-first để 4 thành viên có thể làm song song mà không khóa nhau.
+Kiến trúc feature-first + contract-first. UI, parser, local cache và Android widget giao tiếp qua model/repository contract; không đọc trực tiếp cấu trúc nội bộ của nhau.
 
 ```text
 lib/
-  app/                 # app shell, router, theme
-  core/
-    contracts/         # DTO + repository interface, được freeze
-  shared/              # widget/helper dùng chung
+  app/
+    schedule_coordinator.dart
+  core/contracts/
+    models.dart
+    repositories.dart
   features/
-    qldt_intake/
-    timetable/
-    exam/
-    local_data_sync/
-    account/
-    widget/
+    qldt_intake/       # raw JSON boundary và parser đầu vào
+    timetable/         # parser, query và UI lịch học
+    exam/              # UI lịch thi
+    local_data_sync/   # LocalScheduleStore + JSON cache
+    widget/            # snapshot selector + publisher
+platform/android_widget/
+  app/src/main/
+    kotlin/            # AppWidgetProvider
+    res/               # Manifest, widget info và RemoteViews layout
 ```
 
-## Luồng dữ liệu
+## Luồng dữ liệu trong nhánh tích hợp
 
 ```text
-QLĐT authenticated WebView/session
-          |
-          v
-     qldt_intake
-          |
-          v
-   QldtImportPayload
-          |
-          v
- local_data_sync (transaction)
-          |
-          +----> ScheduleRepository ----> timetable UI
-          |
-          +----> ExamRepository --------> exam UI
-          |
-          +----> WidgetSnapshot --------> Android widget
+LocalScheduleStore (SharedPreferences JSON cache)
+        |
+        +--> ScheduleRepository --> ScheduleCoordinator --> Lịch Ngày/Tuần
+        |
+        +--> ExamRepository -------------------------------> Lịch thi
+        |
+        +--> WidgetService --> HomeWidget SharedPreferences
+                                  |
+                                  +--> ScheduleWidgetProvider
+                                  +--> OverviewWidgetProvider
 ```
 
-## Ranh giới bắt buộc
+QLĐT raw JSON boundary và parser tạo/chuẩn hóa `QldtImportPayload`. Khi có QLĐT repository thực tế, payload được ghi qua repository contract; parser không ghi cache trực tiếp.
 
-1. UI không import DAO/database implementation.
-2. Parser không ghi DB trực tiếp; parser trả `QldtImportPayload`.
-3. Chỉ local-data layer quyết định transaction/migration/cache.
-4. Widget không gọi mạng/QLĐT; app chuẩn bị `WidgetSnapshot` cho widget.
-5. Logout xóa session, secure storage liên quan, dữ liệu local theo policy và snapshot widget.
-6. Sync chỉ replace dữ liệu sau khi parse/validate thành công; lỗi mạng/parser không phá cache cũ.
+## Local cache
+
+- `LocalScheduleStore` hiện lưu payload JSON trong SharedPreferences.
+- Store triển khai `ScheduleRepository`, `ExamRepository` và `WidgetSnapshotRepository`.
+- UI chỉ đọc qua contract; không import SharedPreferences hoặc cache codec.
+- Nếu cache không có dữ liệu, UI hiển thị empty state; không tự tạo lịch mẫu.
+- Đây là cache JSON local, chưa phải triển khai Drift/SQLite.
+
+## Android widgets
+
+- `WidgetService` đọc lịch qua `ScheduleRepository`, tạo timeline và publish bằng `home_widget`.
+- `ScheduleWidgetProvider` đọc `widgetTimeline`.
+- `OverviewWidgetProvider` đọc `widgetOverviewTimeline`.
+- Kotlin chỉ đọc SharedPreferences do app publish; không có QLĐT client, WebView, HTTP request, mật khẩu hoặc cookie/session.
+- Widget timeline luôn giữ cả ngày hiện tại và ngày người dùng đang chọn.
+
+## Khởi tạo Android
+
+Flutter 3.47.2 tạo Android scaffold trong `tool/bootstrap.sh`. Source Kotlin/XML được lưu tại `platform/android_widget/` và cài vào scaffold bằng `tool/install_android_widgets.sh`. Không cần commit thư mục Android sinh tự động.
 
 ## Contract freeze
 
-Các kiểu sau được xem là API nội bộ giữa thành viên:
+Các model và repository trong `lib/core/contracts/` là API nội bộ giữa các module:
 
 - `UserDto`
 - `SemesterDto`
@@ -59,10 +70,15 @@ Các kiểu sau được xem là API nội bộ giữa thành viên:
 - `ExamDto`
 - `QldtImportPayload`
 - `WidgetSnapshot`
-- repository interfaces trong `repositories.dart`
+- `QldtIntakeRepository`
+- `ScheduleRepository`
+- `ExamRepository`
+- `WidgetSnapshotRepository`
 
-Nếu cần đổi field hoặc method signature, mở PR riêng và tag Lead + thành viên bị ảnh hưởng.
+Thay đổi field hoặc method signature cần PR riêng và review từ consumer liên quan.
 
-## Mock-driven parallel work
+## Giới hạn tích hợp
 
-TV2 và TV4 có thể tạo fake/mock implementation của repository để dựng UI/widget trước khi TV1/TV3 hoàn thành parser/DB. Khi implementation thật sẵn sàng, chỉ thay provider binding; không sửa UI để truy cập SQL/HTML trực tiếp.
+- Chưa nối đăng nhập/session QLĐT thực tế vào app.
+- Chưa có luồng sync live để tự nạp cache từ QLĐT.
+- Cần cài APK trên thiết bị Android và thêm hai widget từ launcher để xác minh hiển thị thực tế.
