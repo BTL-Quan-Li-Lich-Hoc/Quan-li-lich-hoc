@@ -16,8 +16,10 @@ Integration changes:
 
 Not implemented and NOT claimed:
 - QLĐT authenticated API import, session-to-parser wiring
-- Native Android widget registration (platform/android_widget is reference only)
+- Android widget visibility/function on physical Android phone (native receivers now registered in bootstrap; device verification pending)
 - Drift/SQLite implementation; current working cache uses SharedPreferences
 - Automated refresh from QLĐT
 
 CI workflow is an assessment aid; consult each step's actual conclusion.
+
+Follow-up: bootstrap now copies native widget sources/XML and registers Android receivers; the app publishes the offline-cache timeline to the widget bridge on startup. APK build is the minimum validation, not proof of device widget behavior.

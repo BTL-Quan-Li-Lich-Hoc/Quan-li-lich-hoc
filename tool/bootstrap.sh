@@ -48,4 +48,31 @@ if [[ -f "${inappwebview_gradle}" ]] && grep -q "getDefaultProguardFile('proguar
   echo 'Patched flutter_inappwebview_android release ProGuard compatibility.'
 fi
 
+# Register the two experimental Android widgets in the generated scaffold.
+# These provider implementations are supplied by Dao's feature branch.
+if [[ -d platform/android_widget/app/src/main ]]; then
+  cp -R platform/android_widget/app/src/main/kotlin/. android/app/src/main/kotlin/
+  cp -R platform/android_widget/app/src/main/res/. android/app/src/main/res/
+  python3 - <<'PY'
+from pathlib import Path
+manifest = Path('android/app/src/main/AndroidManifest.xml')
+source = manifest.read_text()
+if 'android.permission.INTERNET' not in source:
+    source = source.replace('<application', '<uses-permission android:name="android.permission.INTERNET" />\n    <application', 1)
+for name, widget_info in (
+    ('ScheduleWidgetProvider', 'schedule_widget_info'),
+    ('OverviewWidgetProvider', 'overview_widget_info'),
+):
+    if 'android:name=".' + name + '"' not in source:
+        receiver = (
+            '        <receiver android:name=".' + name + '" android:exported="true">\n'
+            '            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>\n'
+            '            <meta-data android:name="android.appwidget.provider" android:resource="@xml/' + widget_info + '" />\n'
+            '        </receiver>\n'
+        )
+        source = source.replace('</application>', receiver + '    </application>', 1)
+manifest.write_text(source)
+PY
+fi
+
 echo 'Bootstrap complete.'

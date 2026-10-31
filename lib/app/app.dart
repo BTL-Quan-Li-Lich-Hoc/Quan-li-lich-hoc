@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:better_phenikaa_schedule/app/schedule_coordinator.dart';
 import 'package:better_phenikaa_schedule/features/local_data_sync/local_schedule_store.dart';
+import 'package:better_phenikaa_schedule/features/widget/widget_service.dart';
 import 'package:better_phenikaa_schedule/features/account/account_screen.dart';
 import 'package:better_phenikaa_schedule/features/exam/exam_screen.dart';
 import 'package:better_phenikaa_schedule/features/qldt_intake/qldt_login_screen.dart';
@@ -79,6 +80,10 @@ class _BetterPhenikaaScheduleAppState extends State<BetterPhenikaaScheduleApp> {
         examRepository: store,
       );
       await scheduleCoordinator.load();
+      await WidgetService(
+        scheduleRepository: store,
+        snapshotRepository: store,
+      ).refresh(selectedDate: scheduleCoordinator.selectedDay);
     } on Object catch (error) {
       if (mounted) scheduleCoordinator.showError(error);
     }
