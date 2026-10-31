@@ -2678,14 +2678,16 @@ class _TimetableModeSelector extends StatelessWidget {
           weekly: weekly,
           premium: premium,
           primary: palette.primary,
-          radius: radius - 3,
+          radius: (radius - 3).clamp(0.0, double.infinity),
         ),
         child: Row(
           children: <Widget>[
             for (final value in <bool>[false, true])
               Expanded(
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(radius - 3),
+                  borderRadius: BorderRadius.circular(
+                    (radius - 3).clamp(0.0, double.infinity),
+                  ),
                   onTap: () => onChanged(value),
                   child: Center(
                     child: Text(
