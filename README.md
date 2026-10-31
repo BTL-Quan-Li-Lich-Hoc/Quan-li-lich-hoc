@@ -1,69 +1,74 @@
 # Better Phenikaa Schedule
 
-Bài tập lớn nhóm 1 — ứng dụng **thời khóa biểu & lịch thi** cho sinh viên Phenikaa University.
+Bài tập lớn nhóm 1 — ứng dụng Flutter theo dõi **lịch học và lịch thi** cho sinh viên Phenikaa.
 
-## Nhóm
+## Nhóm và phạm vi
 
-| STT | Họ và tên | MSSV | Vai trò chính |
+| STT | Họ và tên | MSSV | Phần việc |
 |---:|---|---|---|
-| 1 | Đăng Văn Nam Khánh | 24100041 | QLĐT intake / session / parser |
-| 2 | Trần Đỗ Quốc Huy | 21011607 | Timetable + exam UI |
-| 3 | Trần Văn Dương | 24100043 | Local DB + sync |
-| 4 | Nguyễn Minh Đạo | 24100222 | Lead + widget + settings |
+| 1 | Đăng Văn Nam Khánh | 24100041 | QLĐT intake, kiểm tra dữ liệu đầu vào |
+| 2 | Trần Đỗ Quốc Huy | 21011607 | Parser và logic lịch học/lịch thi |
+| 3 | Trần Văn Dương | 24100043 | Cache local và repository dữ liệu |
+| 4 | Nguyễn Minh Đạo | 24100222 | UI Flutter, Android home widgets và tích hợp |
 
-## Mục tiêu kỹ thuật
+## Chức năng trong nhánh tích hợp ngày 10
 
-- Flutter/Dart là stack chính.
-- Đăng nhập qua luồng QLĐT/Microsoft chính thức; không tự thu mật khẩu.
-- Dữ liệu lịch học/lịch thi lưu local để xem offline.
-- Không dùng Firebase/backend/cloud database cho dữ liệu sinh viên.
-- UI không truy vấn SQL trực tiếp; mọi truy cập dữ liệu đi qua repository contract.
-- Widget chỉ đọc `WidgetSnapshot` đã được app ghi local.
-- Đồng bộ lỗi phải giữ nguyên dữ liệu cũ đang dùng được.
+- Lịch học theo chế độ Ngày/Tuần.
+- Danh sách lịch thi.
+- Trạng thái loading, empty, error và tải lại.
+- Đọc dữ liệu qua repository contracts.
+- Cache lịch học/lịch thi dạng JSON trong SharedPreferences để đọc offline.
+- Hai Android home widgets native:
+  - Lịch học nhanh: lớp hiện tại hoặc sắp tới.
+  - Tổng quan lịch học: tối đa bốn lớp trong ngày.
+- Widget chỉ đọc snapshot local được Flutter publish qua `home_widget`; Kotlin không gọi QLĐT, HTTP hoặc WebView.
 
-## Stack đã chuẩn hóa
+**Giới hạn hiện tại:** nhánh tích hợp có raw JSON boundary và parser, nhưng chưa nối luồng đăng nhập/session QLĐT thực tế vào app. Cache rỗng sẽ hiển thị empty state; không tự tạo lịch mẫu giả.
+
+## Stack đang dùng
 
 - Flutter 3.47.2 / Dart 3.13
 - Riverpod + GoRouter
-- Drift/SQLite
-- Dio + CookieJar + InAppWebView + HTML parser
-- Secure Storage + SharedPreferences
-- Home Widget
-- Freezed/JSON codegen
-- Mocktail
+- SharedPreferences: cache JSON local và widget settings
+- `home_widget` + Kotlin/XML: Android App Widgets
+- `intl`: định dạng ngày/giờ
 - Very Good Analysis + Riverpod Lint
-- Dev Container + GitHub Actions
+- GitHub Actions
 
-## Bắt đầu nhanh
+Các dependency chưa được dùng trong nhánh tích hợp đã được loại khỏi `pubspec.yaml` để tránh kéo plugin Android không cần thiết vào APK.
 
-### Codespaces / Dev Container — khuyến nghị
+## Bắt đầu bằng Codespaces
 
-1. Tạo Codespace trực tiếp trên **feature branch của mình**.
-2. Chọn Dev Container `Better Phenikaa Schedule`.
-3. Container tự cài Flutter 3.47.2, Dart, Android SDK, tắt telemetry, cấu hình Git safe-directory, tạo platform Android/Web nếu thiếu và chạy `flutter pub get`.
-4. Sau khi terminal mở, chỉ cần chạy:
+1. Mở repository và tạo Codespace trên nhánh được phân công.
+2. Dev Container tự chuẩn bị Flutter 3.47.2, Dart và JDK 17.
+3. Khi terminal sẵn sàng, chạy:
 
 ```bash
-bash tool/setup.sh
+bash tool/bootstrap.sh
 ```
 
-`tool/setup.sh` sẽ tự bootstrap, format, analyze và test. Không cần tự cài Flutter/Dart/JDK hay sửa Git `safe.directory` thủ công.
+Lệnh này:
+- tạo Android/Web scaffold nếu còn thiếu;
+- cài hai Android widget Kotlin/XML từ `platform/android_widget/`;
+- chạy `flutter pub get`.
 
-Trong quá trình code, dùng:
+Sau khi code, chạy:
 
 ```bash
 bash tool/quality.sh
 ```
 
-Lệnh này tự format code rồi chạy analyze + test.
+Lệnh trên format Dart, analyze và chạy Flutter tests.
 
-### Máy local
-
-Yêu cầu Flutter 3.47.2, Dart 3.13, JDK 17 và Android SDK. Sau đó chạy:
+## Chạy và build
 
 ```bash
-bash tool/setup.sh
+flutter run
+flutter build apk --debug
+flutter build apk --release
 ```
+
+GitHub Actions trên `feature/btl-integration-day10` chạy format, analyze, tests, build debug/release và lưu APK release thành artifact nếu build thành công.
 
 ## Nhánh làm việc
 
@@ -73,25 +78,16 @@ bash tool/setup.sh
 - `feature/timetable-exam-huy`
 - `feature/local-data-sync-duong`
 - `feature/widget-settings-dao`
+- `feature/btl-integration-day10`: nhánh tích hợp cuối ngày 10.
 
-Không push tính năng trực tiếp vào `main`. Feature branch mở PR vào `develop`; chỉ merge `develop` vào `main` khi quality gate xanh.
+Không push trực tiếp tính năng vào `main`. Feature branch mở PR vào `develop`; chỉ đưa `develop` lên `main` sau khi quality gate và kiểm thử thiết bị đạt.
 
-## Contract freeze
+## Contract và dữ liệu
 
-Các contract trong `lib/core/contracts/` là điểm nối giữa 4 phần việc. Thay đổi model/repository contract cần Lead và thành viên đang tiêu thụ contract đó review trước khi merge.
+- Model/repository trong `lib/core/contracts/` là điểm nối giữa các module.
+- UI không truy cập SharedPreferences trực tiếp.
+- Parser không ghi cache trực tiếp; dữ liệu đi qua `QldtImportPayload` và repository.
+- Widget không giữ mật khẩu, cookie/session hoặc gọi QLĐT.
+- Không commit dữ liệu sinh viên thật, token, cookie, mật khẩu, keystore hoặc database cá nhân.
 
-## Lệnh chuẩn
-
-```bash
-bash tool/setup.sh
-bash tool/quality.sh
-dart run build_runner build --delete-conflicting-outputs
-flutter run
-flutter build apk --debug
-```
-
-## Quy tắc dữ liệu nhạy cảm
-
-Tuyệt đối không commit mật khẩu, cookie/session thật, token, HTML chứa dữ liệu sinh viên, file DB thật, keystore hoặc ảnh chụp chứa thông tin tài khoản. Xem `SECURITY.md`.
-
-Tài liệu chi tiết: `docs/ARCHITECTURE.md`, `docs/WORKFLOW.md`, `LEADER_FIRST_RUN.md`.
+Tài liệu: `docs/INTEGRATION_DAY10.md`, `docs/ARCHITECTURE.md`, `docs/WORKFLOW.md`, `LEADER_FIRST_RUN.md`.
