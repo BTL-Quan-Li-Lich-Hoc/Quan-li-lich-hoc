@@ -23,3 +23,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/fonts/
+    - assets/tien_mon_premium/app_backgrounds/
+    - assets/tien_mon_premium/fonts/
+    - assets/tien_mon_premium/widget_overview/
+    - assets/tien_mon_premium/scene_manifest.json
