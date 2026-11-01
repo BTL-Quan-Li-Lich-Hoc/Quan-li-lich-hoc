@@ -26,4 +26,10 @@ void main() {
     ], DateTime(2026, 10, 22));
     expect(result.map((e) => e.id).toList(), ['mon', 'fri']);
   });
+  test('keeps subjects with accent and removes QLDT machine suffix', () {
+    expect(
+      ScheduleQueries.normalizeSubject(' Môn Lập trình di động-1-2-3(XYZ) '),
+      'Lập trình di động',
+    );
+  });
 }

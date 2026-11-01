@@ -13,6 +13,7 @@ class QldtScheduleParser {
     final raw = decoded['Data'] ?? decoded['schedule'] ?? decoded['rows'];
     if (raw is! List) throw const FormatException('Missing Data/schedule/rows');
     if (raw.length > 10000) throw const FormatException('Too many records');
+    final uniqueEvents = <String>{};
     final classes = <ClassDto>[];
     final exams = <ExamDto>[];
     for (var index = 0; index < raw.length; index++) {
@@ -23,16 +24,29 @@ class QldtScheduleParser {
       if (name.isEmpty) throw FormatException('Row $index has no subject');
       final start = _date(source, ['startAt', 'NGAYHOC', 'NGAYTHI'], index);
       final hour = _number(source, ['GIOBATDAU'], 0);
+      if (hour < 0 || hour > 23) throw FormatException('Row $index invalid start hour');
       final minute = _number(source, ['PHUTBATDAU'], 0);
+      if (minute < 0 || minute > 59) throw FormatException('Row $index invalid start minute');
       final startAt = source.containsKey('startAt') ? start : DateTime(start.year, start.month, start.day, hour, minute);
       final endDate = source.containsKey('endAt') ? _date(source, ['endAt'], index) : null;
-      final endAt = endDate ?? DateTime(startAt.year, startAt.month, startAt.day,
-          _number(source, ['GIOKETTHUC'], startAt.hour + 1), _number(source, ['PHUTKETTHUC'], startAt.minute));
+      final endHour = _number(source, ['GIOKETTHUC'], startAt.hour + 1);
+      final endMinute = _number(source, ['PHUTKETTHUC'], startAt.minute);
+      if (endDate == null &&
+          (endHour < 0 || endHour > 23 || endMinute < 0 || endMinute > 59)) {
+        throw FormatException('Row $index invalid end time');
+      }
+      final endAt = endDate ?? DateTime(startAt.year, startAt.month, startAt.day, endHour, endMinute);
       if (!endAt.isAfter(startAt)) throw FormatException('Row $index invalid time range');
       final kind = _string(source, ['PHANLOAI', 'type']).toUpperCase();
-      final code = _string(source, ['TENLOPHOCPHAN', 'subjectCode', 'MAHOCPHAN']);
+      if (!const <String>{'LICHHOC', 'LICHTHI', 'CLASS', 'EXAM'}.contains(kind)) {
+        throw FormatException('Row $index unknown schedule type');
+      }
+      final code = _string(source, ['TENLOPHOCPHAN', 'subjectCode', 'MAHOCPHAN'])
+          .split(RegExp(r'<br\\s*/?>', caseSensitive: false)).first.trim();
       final id = _string(source, ['ID', 'id']).isEmpty ? '$index-$code-${startAt.toIso8601String()}' : _string(source, ['ID', 'id']);
       final room = _string(source, ['PHONGHOC_TEN', 'PHONGTHI', 'room']);
+      final key = <String>[kind, id, name, startAt.toIso8601String(), room].join('|');
+      if (!uniqueEvents.add(key)) continue;
       if (kind == 'LICHTHI' || kind == 'EXAM') {
         exams.add(ExamDto(id: id, subjectCode: code, subjectName: name, room: room, startAt: startAt, endAt: endAt));
       } else {
@@ -50,6 +64,9 @@ class QldtScheduleParser {
     final ends = <DateTime>[...classes.map((e) => e.endAt), ...exams.map((e) => e.endAt)]..sort();
     final semStart = sem['startDate'] == null ? (starts.isEmpty ? DateTime(date.year, 1, 1) : starts.first) : DateTime.parse(sem['startDate'].toString());
     final semEnd = sem['endDate'] == null ? (ends.isEmpty ? DateTime(date.year, 12, 31) : ends.last) : DateTime.parse(sem['endDate'].toString());
+    if (semEnd.isBefore(semStart)) {
+      throw const FormatException('Semester end date precedes start date');
+    }
     return QldtImportPayload(
       user: UserDto(studentId: (userMap['studentId'] ?? 'demo').toString(), displayName: (userMap['displayName'] ?? 'Sinh viên').toString()),
       semester: SemesterDto(id: (sem['id'] ?? 'current').toString(), name: (sem['name'] ?? 'Học kỳ hiện tại').toString(), startDate: semStart, endDate: semEnd),

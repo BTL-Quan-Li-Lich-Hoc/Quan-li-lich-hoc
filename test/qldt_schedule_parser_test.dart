@@ -15,4 +15,31 @@ void main() {
   test('rejects bad data instead of replacing cache', () {
     expect(() => QldtScheduleParser.parse('{"Data":[{"TENHOCPHAN":"A"}]}'), throwsFormatException);
   });
+  test('rejects unknown type, overflow time and reversed semester', () {
+    expect(
+      () => QldtScheduleParser.parse(
+        '{"Data":[{"PHANLOAI":"KHAC","TENHOCPHAN":"A","NGAYHOC":"22/10/2026"}]}',
+      ),
+      throwsFormatException,
+    );
+    expect(
+      () => QldtScheduleParser.parse(
+        '{"Data":[{"PHANLOAI":"LICHHOC","TENHOCPHAN":"A","NGAYHOC":"22/10/2026","GIOBATDAU":25}]}',
+      ),
+      throwsFormatException,
+    );
+    expect(
+      () => QldtScheduleParser.parse(
+        '{"Data":[],"semester":{"startDate":"2027-01-01","endDate":"2026-01-01"}}',
+      ),
+      throwsFormatException,
+    );
+  });
+
+  test('removes duplicate QLDT lesson rows', () {
+    const row = '{"PHANLOAI":"LICHHOC","TENHOCPHAN":"Toán",'
+        '"NGAYHOC":"22/10/2026","GIOBATDAU":7,"GIOKETTHUC":9}';
+    final result = QldtScheduleParser.parse('{"Data":[' + row + ',' + row + ']}');
+    expect(result.classes, hasLength(1));
+  });
 }
