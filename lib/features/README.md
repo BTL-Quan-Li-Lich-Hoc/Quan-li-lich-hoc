@@ -1,32 +1,22 @@
-# Feature ownership
+# Cau truc feature DemoF3
 
-Mỗi thành viên phát triển trong vùng feature của mình, giao tiếp qua `lib/core/contracts/`.
+> Luoi mo QLDT khong co nghia la duoc phep sap code nhu mot bai tap nop luc 23:59.
 
-## 1. qldt_intake — Đăng Văn Nam Khánh
+Ten nhanh thu muc trong `features/` dung tieng Viet khong dau. Ten bat buoc cua
+Flutter, Android, API QLDT va cac lop da public duoc giu on dinh de tranh loi
+tuong thich.
 
-- QLĐT/Microsoft authenticated flow.
-- Cookie/session lifecycle.
-- Parse timetable/exam HTML/DOM thành `QldtImportPayload`.
-- Không thu hoặc lưu password.
+- `dang_nhap_qldt/`: dang nhap Microsoft/QLDT, phien WebView va parse du lieu.
+- `dong_bo_hang_ngay/`: cau noi lap lich dong bo nen luc khoang 06:00.
+- `tien_ich_lich_hoc/`: snapshot toi gian va cap nhat widget.
+- `giao_dien/`: preset cu va Theme Engine moi.
+  - `bo_may/`: nguon theme, sinh token, contrast va token dung chung.
+  - `bang_mau_anh/`: giam mau va trich mau dai dien tren thiet bi.
+  - `phoi_mau/`: tron 2-3 mau theo ty le.
+  - `phong_chu/`: font he thong, font tich hop va font nhap tu may.
+  - `tep_cuc_bo/`: doc tep private da duoc Android Storage Access Framework sao chep.
+  - `du_lieu/`: luu va khoi phuc custom theme.
+  - `xem_truoc/`: editor, preview, luu, sua, xoa va ap dung theme.
 
-## 2. timetable + exam — Trần Đỗ Quốc Huy
-
-- Timeline lịch học/lịch thi.
-- Chuyển ngày/tuần, chi tiết môn, empty/error/loading state.
-- Dùng repository/mock; không query Drift/SQL trực tiếp.
-
-## 3. local_data_sync — Trần Văn Dương
-
-- Drift schema, DAO, migration.
-- Repository implementation.
-- Offline cache và replace transaction sau sync thành công.
-- Sync lỗi phải giữ dữ liệu cũ.
-
-## 4. widget + settings — Nguyễn Minh Đạo
-
-- Home-screen widget nhỏ, ưu tiên 1x4/2x2 tùy launcher.
-- Nội dung tối giản: môn, phòng, thời gian start → end.
-- Widget chỉ đọc `WidgetSnapshot`; không tự gọi QLĐT.
-- Settings, logout cleanup, loading/empty/error và tối ưu pin/RAM.
-
-Tạo thư mục con khi bắt đầu feature, ví dụ `lib/features/qldt_intake/`.
+Khong chia code theo ten thanh vien. Anh, font va custom theme chi duoc xu ly va
+luu cuc bo; khong co analytics, tracker hay upload len dich vu ben thu ba.

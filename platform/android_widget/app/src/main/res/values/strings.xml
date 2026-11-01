@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Production launcher/widget label. -->
+    <string name="app_name">Better Phenikaa App</string>
+</resources>

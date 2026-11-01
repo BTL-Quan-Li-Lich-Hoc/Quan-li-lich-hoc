@@ -1,21 +1,23 @@
 name: better_phenikaa_schedule
-description: Better Phenikaa Schedule - timetable and exam companion for Phenikaa students.
+description: Better Phenikaa App - lịch học và lịch thi cho sinh viên Phenikaa University.
 publish_to: none
-version: 0.1.0+1
-
+version: 1.0.0+26
 environment:
   sdk: '>=3.13.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  flutter_riverpod: 3.4.3
-  go_router: 18.0.1
+  flutter_inappwebview: 6.1.5
   home_widget: 0.9.4
+  html: 0.15.7
   shared_preferences: 2.5.5
+  cryptography: 2.9.0
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   very_good_analysis: 11.0.0
 
