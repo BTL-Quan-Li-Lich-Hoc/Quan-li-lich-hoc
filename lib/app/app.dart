@@ -1214,7 +1214,6 @@ class _MainShellState extends State<_MainShell>
     final panelOpen = widget.panelOpen;
     final syncing = widget.syncing;
     final errorMessage = widget.errorMessage;
-    final examNotice = widget.examNotice;
     final unreadDifference = widget.unreadDifference;
     final hasActiveExamPeriod = widget.hasActiveExamPeriod;
     final syncStale = widget.syncStale;
@@ -1320,7 +1319,7 @@ class _MainShellState extends State<_MainShell>
               right: 16,
               top: 14,
               child: _ErrorBanner(
-                message: errorMessage!,
+                message: errorMessage,
                 onDismiss: onDismissError,
               ),
             ),
