@@ -38,4 +38,11 @@ fi
 
 flutter pub get
 
+# Repair a legacy WebView Android plugin ProGuard reference.
+for plugin_gradle in "${PUB_CACHE:-${HOME}/.pub-cache}"/hosted/pub.dev/flutter_inappwebview_android-*/android/build.gradle; do
+  if [[ -f "${plugin_gradle}" ]] && grep -q "getDefaultProguardFile('proguard-android.txt')" "${plugin_gradle}"; then
+    sed -i "s/getDefaultProguardFile('proguard-android.txt')/getDefaultProguardFile('proguard-android-optimize.txt')/g" "${plugin_gradle}"
+  fi
+done
+
 echo 'Bootstrap complete.'
