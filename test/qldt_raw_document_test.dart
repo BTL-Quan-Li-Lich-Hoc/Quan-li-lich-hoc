@@ -12,4 +12,14 @@ void main() {
     expect(QldtWebViewPage.isAllowed('http://phenikaa-uni.edu.vn/'), isFalse);
     expect(QldtWebViewPage.isAllowed('https://phenikaa-uni.edu.vn.evil.example/'), isFalse);
   });
+  test('rejects QLĐT error and malformed rows', () {
+    expect(
+      () => QldtRawDocument.fromJsonText('{"Success":false,"Data":[]}'),
+      throwsFormatException,
+    );
+    expect(
+      () => QldtRawDocument.fromJsonText('{"Data":[123]}'),
+      throwsFormatException,
+    );
+  });
 }

@@ -15,6 +15,14 @@ class QldtRawDocument {
     if (rows is! List) {
       throw const FormatException('Không tìm thấy danh sách Data / schedule / rows.');
     }
+    if (parsed['Success'] == false) {
+      throw const FormatException('QLĐT trả dữ liệu lỗi.');
+    }
+    for (final row in rows) {
+      if (row is! Map) {
+        throw const FormatException('Bản ghi lịch phải là object.');
+      }
+    }
     if (rows.length > 10000) {
       throw const FormatException('Tệp lịch học có quá nhiều bản ghi.');
     }
