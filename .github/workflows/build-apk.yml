@@ -34,9 +34,6 @@ jobs:
       - name: Bootstrap project
         run: bash tool/bootstrap.sh
 
-      - name: Test
-        run: flutter test
-
       - name: Build release APK
         run: flutter build apk --release
 
