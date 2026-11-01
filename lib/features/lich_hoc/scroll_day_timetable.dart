@@ -299,9 +299,8 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
   // Giữ dữ liệu lịch thật; chỉ đổi cách trình bày card trong chế độ Scroll.
   // Các tỷ lệ chiều cao lấy từ bản HTML tham chiếu, không phải ảnh trống.
   Widget _lessonCard(ScheduleRecord record, int index) {
-    const heights = <double>[64, 182, 226, 124, 158, 116, 134];
-    final compact = index % heights.length == 0;
-    final cardHeight = heights[index % heights.length];
+    // Tất cả thẻ Scroll có kích thước bằng nhau ở cả hai cột.
+    const double cardHeight = 190;
     final isOngoing = !DateTime.now().isBefore(record.startAt) &&
         DateTime.now().isBefore(record.endAt);
     final period = record.periodStart == null
@@ -323,8 +322,7 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          if (!compact)
-            Padding(
+          Padding(
               padding: const EdgeInsets.fromLTRB(2, 3, 2, 7),
               child: Text(
                 period,
@@ -342,8 +340,8 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
             onTap: () => _details(record),
             child: Container(
               width: double.infinity,
-              constraints: BoxConstraints(minHeight: cardHeight),
-              padding: EdgeInsets.all(compact ? 8 : 11),
+              height: cardHeight,
+              padding: const EdgeInsets.all(11),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   begin: Alignment.topCenter,
@@ -385,16 +383,16 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
                   const SizedBox(height: 5),
                   Text(
                     record.subjectName,
-                    maxLines: compact ? 1 : 3,
+                    maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: const Color(0xFF172337),
                       fontWeight: FontWeight.w800,
-                      fontSize: compact ? 11 : 13,
+                      fontSize: 13,
                       height: 1.22,
                     ),
                   ),
-                  if (!compact) ...<Widget>[
+                  ...<Widget>[
                     const SizedBox(height: 11),
                     if (record.room.isNotEmpty)
                       Row(children: <Widget>[
@@ -402,7 +400,7 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
                         const SizedBox(width: 3),
                         Expanded(
                           child: Text(record.room,
-                            maxLines: 2, overflow: TextOverflow.ellipsis,
+                            maxLines: 1, overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF07567E))),
                         ),
                       ]),
@@ -410,7 +408,7 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
                       const SizedBox(height: 4),
                       Text(
                         record.className,
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 10, color: Color(0xFF27384D)),
                       ),
@@ -460,8 +458,7 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
   }
 
   Widget _twoColumnCards(List<ScheduleRecord> items) {
-    // Hai luồng so le cùng nằm trong một danh sách cuộn dọc;
-    // card cao thấp khác nhau giống bản HTML, không tạo scroll lồng nhau.
+    // Hai cột cùng chiều rộng, thẻ cùng chiều cao, chung một luồng cuộn dọc.
     final left = <int>[];
     final right = <int>[];
     for (var i = 0; i < items.length; i++) {
