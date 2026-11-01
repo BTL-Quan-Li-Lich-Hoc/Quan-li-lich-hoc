@@ -1,3 +1,4 @@
+import 'package:better_phenikaa_schedule/features/qldt_intake/qldt_webview.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,6 +9,12 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) {
         return const BootstrapScreen();
       },
+    ),
+    GoRoute(
+      path: '/qldt',
+      builder: (context, state) => const QldtWebViewPage(
+        portalUrl: 'https://qldtbeta.phenikaa-uni.edu.vn/',
+      ),
     ),
   ],
 );
@@ -30,26 +37,32 @@ class BetterPhenikaaScheduleApp extends StatelessWidget {
 }
 
 class BootstrapScreen extends StatelessWidget {
-  const new({super.key});
+  const BootstrapScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: SafeArea(
         child: Center(
           child: Padding(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Text(
+                const Text(
                   'Better Phenikaa Schedule',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                 ),
-                SizedBox(height: 12),
-                Text(
-                  'Môi trường đã sẵn sàng. Hãy phát triển theo feature branch.',
+                const SizedBox(height: 12),
+                const Text(
+                  'Bản thử kết nối và lấy lịch QLĐT.',
                   textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: () => context.go('/qldt'),
+                  icon: const Icon(Icons.school_outlined),
+                  label: const Text('Đăng nhập QLĐT'),
                 ),
               ],
             ),
