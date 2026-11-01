@@ -45,7 +45,14 @@ class QldtScheduleParser {
           .split(RegExp(r'<br\s*/?>', caseSensitive: false)).first.trim();
       final id = _string(source, ['ID', 'id']).isEmpty ? '$index-$code-${startAt.toIso8601String()}' : _string(source, ['ID', 'id']);
       final room = _string(source, ['PHONGHOC_TEN', 'PHONGTHI', 'room']);
-      final key = <String>[kind, id, name, startAt.toIso8601String(), room].join('|');
+      final key = <String>[
+        kind,
+        code,
+        name,
+        startAt.toIso8601String(),
+        endAt.toIso8601String(),
+        room,
+      ].join('|');
       if (!uniqueEvents.add(key)) continue;
       if (kind == 'LICHTHI' || kind == 'EXAM') {
         exams.add(ExamDto(id: id, subjectCode: code, subjectName: name, room: room, startAt: startAt, endAt: endAt));
