@@ -109,22 +109,6 @@ String _profileNameFromObject(Object? node, [int depth = 0]) {
   return '';
 }
 
-String _displayNameFromJwtToken(String rawToken) {
-  try {
-    var token = rawToken.trim();
-    if (token.toLowerCase().startsWith('bearer ')) {
-      token = token.substring(7).trim();
-    }
-    final parts = token.split('.');
-    if (parts.length < 2) return '';
-    final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
-    final decoded = jsonDecode(payload);
-    return _profileNameFromObject(decoded);
-  } on Object {
-    return '';
-  }
-}
-
 Future<String> readCachedQldtDisplayName() async {
   try {
     final prefs = await SharedPreferences.getInstance();
@@ -608,22 +592,6 @@ class _QldtWebLoginScreenState extends State<_QldtWebLoginScreen>
 
   String _cleanProfileName(Object? raw) =>
       _sanitizeQldtProfileName(raw);
-
-  Future<String> _cachedProfileNameFor(String userId) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final raw = prefs.getString(_profileKey);
-      if (raw == null || raw.isEmpty) return '';
-      final json = Map<String, dynamic>.from(
-        jsonDecode(raw) as Map<dynamic, dynamic>,
-      );
-      if ((json['userId'] ?? '').toString() != userId) return '';
-      if ((json['source'] ?? '').toString() != 'qldt_api_registration') return '';
-      return _cleanProfileName(json['name']);
-    } on Object {
-      return '';
-    }
-  }
 
   Future<void> _rememberProfileName(
     QldtNativeSession session,
