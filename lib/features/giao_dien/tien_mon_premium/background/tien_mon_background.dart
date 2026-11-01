@@ -400,35 +400,6 @@ class _FullBleedSceneArtwork extends StatelessWidget {
   }
 }
 
-class _EdgeBlendMist extends StatelessWidget {
-  const _EdgeBlendMist({required this.vertical, required this.gap});
-
-  final bool vertical;
-  final double gap;
-
-  @override
-  Widget build(BuildContext context) {
-    if (gap <= 0) return const SizedBox.shrink();
-    return IgnorePointer(
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: vertical ? Alignment.topCenter : Alignment.centerLeft,
-            end: vertical ? Alignment.bottomCenter : Alignment.centerRight,
-            colors: <Color>[
-              Colors.black.withValues(alpha: .10),
-              Colors.transparent,
-              Colors.transparent,
-              Colors.black.withValues(alpha: .10),
-            ],
-            stops: const <double>[0, .16, .84, 1],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _SceneEdgeExtension extends StatelessWidget {
   const _SceneEdgeExtension({
     required this.scene,
