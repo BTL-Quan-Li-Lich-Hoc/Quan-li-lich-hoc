@@ -45,7 +45,6 @@ class _TienMonOverviewWidgetPreviewState
     extends State<TienMonOverviewWidgetPreview>
     with TickerProviderStateMixin {
   static const Duration _f3ModeFade = Duration(milliseconds: 480);
-  static const Duration _f3WindowTransition = Duration(milliseconds: 190);
 
   late TienMonScheduleMode _mode = widget.mode;
   late TienMonSyncState _sync = widget.syncState;
