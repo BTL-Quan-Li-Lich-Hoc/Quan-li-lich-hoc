@@ -344,10 +344,14 @@ class _AppRootState extends State<_AppRoot> with WidgetsBindingObserver {
       await _repairStoredDisplayName();
       final prefs = await SharedPreferences.getInstance();
       final savedMode = prefs.getString(_scheduleDisplayModeKey);
-      _scheduleDisplayMode = ScheduleDisplayMode.values.firstWhere(
-        (mode) => mode.name == savedMode,
-        orElse: () => ScheduleDisplayMode.standard,
-      );
+      // Chuyển cài đặt Scroll cũ về một chế độ Scroll duy nhất.
+      _scheduleDisplayMode = savedMode == 'scrollOneColumn' ||
+              savedMode == 'scrollTwoColumns'
+          ? ScheduleDisplayMode.scroll
+          : ScheduleDisplayMode.values.firstWhere(
+              (mode) => mode.name == savedMode,
+              orElse: () => ScheduleDisplayMode.standard,
+            );
       _assistantPack = await AssistantSelection.load();
       _accountDisplayName = await readQldtAccountDisplayName();
       var raw = prefs.getString(_storageKey);
@@ -1631,8 +1635,6 @@ class _TimetableScreenState extends State<_TimetableScreen>
                       data: widget.data,
                       selectedDate: widget.selectedDate,
                       onDateChanged: widget.onDateChanged,
-                      twoColumns: widget.scheduleDisplayMode ==
-                          ScheduleDisplayMode.scrollTwoColumns,
                     )
                   : ValueListenableBuilder<double>(
                 valueListenable: _modeOpacity,
