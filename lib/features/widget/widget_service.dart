@@ -36,8 +36,12 @@ final class WidgetService {
   }) async {
     final effectiveNow = now ?? DateTime.now();
     final selected = _dateOnly(selectedDate);
-    final firstDay = selected.subtract(const Duration(days: _daysBefore));
-    final lastDay = selected.add(const Duration(days: _daysAfter));
+    final today = _dateOnly(effectiveNow);
+    // Widget hôm nay vẫn phải có dữ liệu khi người dùng xem ngày rất xa.
+    final anchorStart = today.isBefore(selected) ? today : selected;
+    final anchorEnd = today.isAfter(selected) ? today : selected;
+    final firstDay = anchorStart.subtract(const Duration(days: _daysBefore));
+    final lastDay = anchorEnd.add(const Duration(days: _daysAfter));
     final rangeEnd = lastDay.add(const Duration(days: 1));
 
     try {

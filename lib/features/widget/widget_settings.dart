@@ -87,9 +87,17 @@ final class WidgetSettingsController extends ChangeNotifier {
   }
 
   Future<void> update(WidgetSettings value) async {
+    final previous = _value;
     _value = value;
     notifyListeners();
-    await _store.save(value);
+    try {
+      await _store.save(value);
+    } on Object {
+      // Không hiển thị tùy chọn mới nếu lưu cấu hình thất bại.
+      _value = previous;
+      notifyListeners();
+      rethrow;
+    }
   }
 
   Future<void> reset() async {
