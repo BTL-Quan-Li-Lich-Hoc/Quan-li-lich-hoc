@@ -7,19 +7,16 @@ import 'package:flutter/rendering.dart';
 
 enum ScheduleDisplayMode {
   standard,
-  scrollOneColumn,
-  scrollTwoColumns;
+  scroll;
 
   String get label => switch (this) {
     standard => 'Thông thường (Ngày / Tuần)',
-    scrollOneColumn => 'Scroll liên tục · 1 cột',
-    scrollTwoColumns => 'Scroll liên tục · 2 cột',
+    scroll => 'Scroll liên tục',
   };
 
   String get description => switch (this) {
     standard => 'Giữ kiểu lịch ngày và tuần của Cooc.',
-    scrollOneColumn => 'Vuốt ngày ngang và cuộn dọc các buổi học.',
-    scrollTwoColumns => 'Cuộn liên tục với thẻ môn học so le 2 cột.',
+    scroll => 'Cuộn ngày liên tục với thẻ môn học hai cột so le.',
   };
 }
 
@@ -30,14 +27,12 @@ class ScrollDayTimetable extends StatefulWidget {
     required this.data,
     required this.selectedDate,
     required this.onDateChanged,
-    required this.twoColumns,
     super.key,
   });
 
   final ImportedScheduleData data;
   final DateTime selectedDate;
   final ValueChanged<DateTime> onDateChanged;
-  final bool twoColumns;
 
   @override
   State<ScrollDayTimetable> createState() => _ScrollDayTimetableState();
@@ -301,53 +296,133 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
     );
   }
 
-  Widget _lessonCard(ScheduleRecord record) {
-    final palette = appThemePalette;
-    final now = DateTime.now();
-    final active = !now.isBefore(record.startAt) && now.isBefore(record.endAt);
-    final duration = record.endAt.difference(record.startAt).inMinutes;
-    final cardHeight = (90 + duration.clamp(0, 240) / 10).toDouble();
-    final content = InkWell(
-      onTap: () => _details(record),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: cardHeight),
-        child: Padding(
-          padding: const EdgeInsets.all(11),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text('${_clock(record.startAt)} – ${_clock(record.endAt)}',
-                  style: TextStyle(color: palette.primary,
-                    fontSize: 11, fontWeight: FontWeight.w800)),
-              const SizedBox(height: 8),
-              Text(record.subjectName, maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: palette.textPrimary,
-                  fontSize: 13, fontWeight: FontWeight.w800)),
-              if (record.room.isNotEmpty) ...<Widget>[
-                const SizedBox(height: 6),
-                Text(record.room, maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: palette.textSecondary, fontSize: 11)),
-              ],
-              if (record.periodStart != null) ...<Widget>[
-                const SizedBox(height: 5),
-                Text('Tiết ${record.periodStart}${record.periodEnd == null ? '' : '–${record.periodEnd}'}',
-                    style: TextStyle(color: palette.textSecondary, fontSize: 11)),
-              ],
-            ],
-          ),
+  // Giữ dữ liệu lịch thật; chỉ đổi cách trình bày card trong chế độ Scroll.
+  // Các tỷ lệ chiều cao lấy từ bản HTML tham chiếu, không phải ảnh trống.
+  Widget _lessonCard(ScheduleRecord record, int index) {
+    const heights = <double>[64, 182, 226, 124, 158, 116, 134];
+    final compact = index % heights.length == 0;
+    final cardHeight = heights[index % heights.length];
+    final isOngoing = !DateTime.now().isBefore(record.startAt) &&
+        DateTime.now().isBefore(record.endAt);
+    final period = record.periodStart == null
+        ? 'Môn học'
+        : 'Tiết ${record.periodStart}${record.periodEnd == null ? '' : '–${record.periodEnd}'}';
+
+    return TweenAnimationBuilder<double>(
+      key: ValueKey<String>('scroll-card-${record.startAt.millisecondsSinceEpoch}-${record.subjectName}'),
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: Duration(milliseconds: 230 + (index % 4) * 45),
+      curve: Curves.easeOutCubic,
+      builder: (context, progress, child) => Opacity(
+        opacity: progress,
+        child: Transform.translate(
+          offset: Offset(0, (1 - progress) * 9),
+          child: child,
         ),
       ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          if (!compact)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(2, 3, 2, 7),
+              child: Text(
+                period,
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF526174),
+                ),
+              ),
+            ),
+          _ScrollTouchableCard(
+            onTap: () => _details(record),
+            child: Container(
+              width: double.infinity,
+              constraints: BoxConstraints(minHeight: cardHeight),
+              padding: EdgeInsets.all(compact ? 8 : 11),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: <Color>[Color(0xFF64CBFF), Color(0xFF4DBBF6)],
+                ),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: const Color(0xFFE6F8FF)),
+                boxShadow: const <BoxShadow>[
+                  BoxShadow(color: Color(0x380E8ED1), offset: Offset(0, 5)),
+                  BoxShadow(color: Color(0x320E74AE), blurRadius: 16, offset: Offset(0, 9)),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(children: <Widget>[
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xC8FFFFFF),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Text(
+                          '${_clock(record.startAt)}–${_clock(record.endAt)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF07567E)),
+                        ),
+                      ),
+                    ),
+                    if (isOngoing) ...<Widget>[
+                      const SizedBox(width: 3),
+                      const Icon(Icons.circle, color: Color(0xFF0D8860), size: 9),
+                    ],
+                  ]),
+                  const SizedBox(height: 5),
+                  Text(
+                    record.subjectName,
+                    maxLines: compact ? 1 : 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: const Color(0xFF172337),
+                      fontWeight: FontWeight.w800,
+                      fontSize: compact ? 11 : 13,
+                      height: 1.22,
+                    ),
+                  ),
+                  if (!compact) ...<Widget>[
+                    const SizedBox(height: 11),
+                    if (record.room.isNotEmpty)
+                      Row(children: <Widget>[
+                        const Icon(Icons.place_outlined, size: 13, color: Color(0xFF07567E)),
+                        const SizedBox(width: 3),
+                        Expanded(
+                          child: Text(record.room,
+                            maxLines: 2, overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF07567E))),
+                        ),
+                      ]),
+                    if (record.className.isNotEmpty) ...<Widget>[
+                      const SizedBox(height: 4),
+                      Text(
+                        record.className,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 10, color: Color(0xFF27384D)),
+                      ),
+                    ],
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
-    if (palette.id == AppThemeId.tienMonPremium) {
-      return TienMonEdgeSurface(
-        active: active,
-        scene: TienMonPremiumContract.appSceneFor(now),
-        child: content,
-      );
-    }
-    return AppThemePanel(elevated: true, child: content);
   }
 
   Widget _daySection(DateTime day) {
@@ -364,13 +439,7 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
                   style: TextStyle(color: palette.textSecondary)),
             ),
           ]
-        : widget.twoColumns
-        ? <Widget>[_twoColumnCards(items)]
-        : <Widget>[
-            for (final item in items)
-              Padding(padding: const EdgeInsets.only(bottom: 10),
-                  child: _lessonCard(item)),
-          ];
+        : <Widget>[_twoColumnCards(items)];
     return Padding(
       key: _keyFor(day),
       padding: const EdgeInsets.only(bottom: 18),
@@ -391,23 +460,28 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
   }
 
   Widget _twoColumnCards(List<ScheduleRecord> items) {
-    final left = <ScheduleRecord>[];
-    final right = <ScheduleRecord>[];
+    // Hai luồng so le cùng nằm trong một danh sách cuộn dọc;
+    // card cao thấp khác nhau giống bản HTML, không tạo scroll lồng nhau.
+    final left = <int>[];
+    final right = <int>[];
     for (var i = 0; i < items.length; i++) {
-      (i.isEven ? left : right).add(items[i]);
+      (i.isEven ? left : right).add(i);
     }
-    Widget column(List<ScheduleRecord> entries) => Column(
+    Widget column(List<int> indices) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        for (final record in entries)
-          Padding(padding: const EdgeInsets.only(bottom: 9),
-              child: _lessonCard(record)),
+        for (final index in indices)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 17),
+            child: _lessonCard(items[index], index),
+          ),
       ],
     );
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Expanded(child: column(left)),
-        const SizedBox(width: 9),
+        const SizedBox(width: 12),
         Expanded(child: column(right)),
       ],
     );
@@ -472,13 +546,36 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Row(children: <Widget>[
-          Expanded(child: Text(_dayLabel(_active), maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: palette.textPrimary,
-                  fontSize: 13, fontWeight: FontWeight.w800))),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'Tháng ${_digits(_active.month)}/${_active.year} · ${_onDate(_active).length} tiết',
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF0284C7)),
+                ),
+                Text(_dayLabel(_active), maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: palette.textPrimary,
+                    fontSize: 13, fontWeight: FontWeight.w800)),
+              ],
+            ),
+          ),
           TextButton(
             onPressed: () => _resetToDay(DateTime.now(), notifyParent: true),
             child: const Text('Hôm nay'),
+          ),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            tooltip: 'Ngày trước',
+            onPressed: () => _resetToDay(_active.subtract(const Duration(days: 1)), notifyParent: true),
+            icon: const Icon(Icons.chevron_left_rounded),
+          ),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            tooltip: 'Ngày sau',
+            onPressed: () => _resetToDay(_active.add(const Duration(days: 1)), notifyParent: true),
+            icon: const Icon(Icons.chevron_right_rounded),
           ),
         ]),
         SizedBox(
@@ -503,15 +600,32 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
           }),
         ),
         const SizedBox(height: 4),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(children: <Widget>[
-            _filterChip(_StudySession.all, 'Tất cả'),
-            _filterChip(_StudySession.morning, 'Sáng'),
-            _filterChip(_StudySession.afternoon, 'Chiều'),
-            _filterChip(_StudySession.evening, 'Tối'),
-          ]),
-        ),
+        Row(children: <Widget>[
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(children: <Widget>[
+                _filterChip(_StudySession.all, 'Tất cả'),
+                _filterChip(_StudySession.morning, 'Sáng'),
+                _filterChip(_StudySession.afternoon, 'Chiều'),
+                _filterChip(_StudySession.evening, 'Tối'),
+              ]),
+            ),
+          ),
+          TextButton.icon(
+            onPressed: () {
+              if (_dayController.hasClients) {
+                _dayController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 320),
+                  curve: Curves.easeOutCubic,
+                );
+              }
+            },
+            label: const Text('Đầu trang', style: TextStyle(fontSize: 10)),
+            icon: const Icon(Icons.keyboard_arrow_up_rounded, size: 16),
+          ),
+        ]),
         const SizedBox(height: 8),
         Expanded(
           child: Container(
@@ -527,6 +641,37 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ScrollTouchableCard extends StatefulWidget {
+  const _ScrollTouchableCard({required this.child, required this.onTap});
+
+  final Widget child;
+  final VoidCallback onTap;
+
+  @override
+  State<_ScrollTouchableCard> createState() => _ScrollTouchableCardState();
+}
+
+class _ScrollTouchableCardState extends State<_ScrollTouchableCard> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      scale: _pressed ? .975 : 1,
+      duration: const Duration(milliseconds: 170),
+      curve: Curves.easeOutCubic,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapCancel: () => setState(() => _pressed = false),
+        onTapUp: (_) => setState(() => _pressed = false),
+        child: widget.child,
+      ),
     );
   }
 }
