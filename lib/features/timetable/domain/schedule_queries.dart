@@ -8,7 +8,48 @@ class ScheduleQueries {
     return text
         .trim()
         .replaceFirst(RegExp(r'^Môn\s+', caseSensitive: false), '')
-        .replaceAll(RegExp(r'\s+'), ' ');
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .replaceFirst(
+          RegExp(r'-\d+-\d+-\d+\([^)]*\)(?:\.[\w]+)?
+  }
+
+  static List<ClassDto> onDay(List<ClassDto> classes, DateTime day) {
+    final matches = classes
+        .where(
+          (c) =>
+              c.startAt.year == day.year &&
+              c.startAt.month == day.month &&
+              c.startAt.day == day.day,
+        )
+        .toList();
+    matches.sort((a, b) => a.startAt.compareTo(b.startAt));
+    return matches;
+  }
+
+  static List<ClassDto> inWeek(List<ClassDto> classes, DateTime day) {
+    final start = DateTime(
+      day.year,
+      day.month,
+      day.day,
+    ).subtract(Duration(days: day.weekday - 1));
+    final end = start.add(const Duration(days: 7));
+    final matches = classes
+        .where((c) => !c.startAt.isBefore(start) && c.startAt.isBefore(end))
+        .toList();
+    matches.sort((a, b) => a.startAt.compareTo(b.startAt));
+    return matches;
+  }
+
+  static List<ExamDto> upcomingExams(List<ExamDto> exams, DateTime now) {
+    final matches = exams.where((e) => !e.endAt.isBefore(now)).toList();
+    matches.sort((a, b) => a.startAt.compareTo(b.startAt));
+    return matches;
+  }
+}
+),
+          '',
+        )
+        .trim();
   }
 
   static List<ClassDto> onDay(List<ClassDto> classes, DateTime day) {
