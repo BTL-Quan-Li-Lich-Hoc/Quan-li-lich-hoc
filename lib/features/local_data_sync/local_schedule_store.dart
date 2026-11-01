@@ -27,7 +27,7 @@ class LocalScheduleStore implements ScheduleRepository, ExamRepository, WidgetSn
 
   Future<void> replaceImport(QldtImportPayload payload) async {
     final encoded = LocalCacheCodec.encode(payload);
-    LocalCacheCodec.decode(encoded); // Validate before touching persisted state.
+    LocalCacheCodec.decode(encoded);
     final ok = await _prefs.setString(cacheKey, encoded);
     if (!ok) throw StateError('Không ghi được cache; dữ liệu trước đó giữ nguyên');
     _current = payload;
