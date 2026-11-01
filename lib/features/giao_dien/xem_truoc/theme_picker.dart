@@ -4,7 +4,6 @@ import 'package:better_phenikaa_schedule/features/giao_dien/bo_may/theme_source.
 import 'package:better_phenikaa_schedule/features/giao_dien/du_lieu/custom_theme.dart';
 import 'package:better_phenikaa_schedule/features/giao_dien/phong_chu/font_choice.dart';
 import 'package:better_phenikaa_schedule/features/giao_dien/phong_chu/font_manager.dart';
-import 'package:better_phenikaa_schedule/features/giao_dien/tien_mon_premium/tien_mon_premium_contract.dart';
 import 'package:better_phenikaa_schedule/features/giao_dien/xem_truoc/custom_theme_editor.dart';
 import 'package:better_phenikaa_schedule/theme/app_theme.dart';
 import 'package:flutter/material.dart';
