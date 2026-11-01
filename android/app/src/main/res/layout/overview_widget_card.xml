@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/overview_card_root" android:layout_width="0dp" android:layout_height="47dp" android:layout_weight="1" android:layout_marginEnd="4dp" android:layout_marginBottom="5dp">
+ <ImageView android:id="@+id/overview_card_background" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:contentDescription="@null"/>
+ <ImageView android:id="@+id/overview_card_font" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:visibility="gone" android:contentDescription="@null"/>
+ <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="vertical" android:paddingStart="8dp" android:paddingEnd="5dp">
+  <TextView android:id="@+id/overview_card_date" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:maxLines="1" android:textSize="9sp"/>
+  <TextView android:id="@+id/overview_card_time" android:layout_width="match_parent" android:layout_height="wrap_content" android:includeFontPadding="false" android:maxLines="1" android:textSize="13sp" android:textStyle="bold"/>
+  <TextView android:id="@+id/overview_card_subject" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:maxLines="2" android:textSize="10sp" android:textStyle="bold"/>
+  <TextView android:id="@+id/overview_card_form" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:maxLines="1" android:textSize="9sp" android:visibility="gone"/>
+  <TextView android:id="@+id/overview_card_room" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:maxLines="1" android:textSize="9sp"/>
+ </LinearLayout>
+</FrameLayout>

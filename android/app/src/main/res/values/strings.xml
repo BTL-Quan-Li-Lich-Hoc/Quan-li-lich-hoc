@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Production launcher/widget label. -->
+    <string name="app_name">Better Phenikaa App</string>
+    <string name="widget_small_name">Lịch học · Vuốt dọc</string>
+    <string name="widget_overview_name">Tổng quan học và thi</string>
+    <string name="widget_small_description">Widget nhỏ 4×1: lịch học, lịch thi và ba nút chức năng.</string>
+    <string name="widget_overview_description">Widget tổng quan 4×2: các môn theo ô cố định và chuyển trang.</string>
+</resources>
