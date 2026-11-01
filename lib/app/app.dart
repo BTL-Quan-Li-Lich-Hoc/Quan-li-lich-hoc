@@ -16,6 +16,7 @@ import 'package:better_phenikaa_schedule/features/giao_dien/xem_truoc/theme_pick
 import 'package:better_phenikaa_schedule/features/giao_dien/tien_mon_premium/schedule/tien_mon_schedule_views.dart';
 import 'package:better_phenikaa_schedule/features/giao_dien/tien_mon_premium/tien_mon_premium_contract.dart';
 import 'package:better_phenikaa_schedule/features/lich_hoc/week_timetable.dart';
+import 'package:better_phenikaa_schedule/features/lich_hoc/scroll_day_timetable.dart';
 import 'package:better_phenikaa_schedule/features/tien_ich_lich_hoc/widget_publisher.dart';
 import 'package:better_phenikaa_schedule/features/tro_li/assistant_text.dart';
 import 'package:better_phenikaa_schedule/theme/app_theme.dart';
@@ -82,6 +83,8 @@ class _AppRootState extends State<_AppRoot> with WidgetsBindingObserver {
   _AppPage _page = _AppPage.timetable;
   DateTime _selectedDate = DateTime.now();
   bool _showPastExams = false;
+  ScheduleDisplayMode _scheduleDisplayMode = ScheduleDisplayMode.standard;
+  static const _scheduleDisplayModeKey = 'better_phenikaa_schedule_display_mode_v1';
   String? _errorMessage;
   String? _examNotice;
   SemesterDifference? _latestDifference;
@@ -340,6 +343,11 @@ class _AppRootState extends State<_AppRoot> with WidgetsBindingObserver {
     try {
       await _repairStoredDisplayName();
       final prefs = await SharedPreferences.getInstance();
+      final savedMode = prefs.getString(_scheduleDisplayModeKey);
+      _scheduleDisplayMode = ScheduleDisplayMode.values.firstWhere(
+        (mode) => mode.name == savedMode,
+        orElse: () => ScheduleDisplayMode.standard,
+      );
       _assistantPack = await AssistantSelection.load();
       _accountDisplayName = await readQldtAccountDisplayName();
       var raw = prefs.getString(_storageKey);
@@ -711,6 +719,7 @@ class _AppRootState extends State<_AppRoot> with WidgetsBindingObserver {
         _unreadDifference = false;
         _lastSuccessfulSync = null;
         _assistantPack = AssistantPack.normal;
+        _scheduleDisplayMode = ScheduleDisplayMode.standard;
         _accountDisplayName = '';
       });
     }
@@ -871,6 +880,19 @@ class _AppRootState extends State<_AppRoot> with WidgetsBindingObserver {
                                     ),
                                 onSyncWarning: _showSyncWarning,
                                 assistantPack: _assistantPack,
+                                scheduleDisplayMode: _scheduleDisplayMode,
+                                onScheduleDisplayModeChanged: (mode) async {
+                                  final prefs = await SharedPreferences.getInstance();
+                                  final saved = await prefs.setString(_scheduleDisplayModeKey, mode.name);
+                                  if (!mounted) return;
+                                  if (saved) {
+                                    setState(() => _scheduleDisplayMode = mode);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Không lưu được dạng hiển thị lịch học.')),
+                                    );
+                                  }
+                                },
                                 onAssistantPackChanged: (pack) async {
                                   await AssistantSelection.save(pack);
                                   if (mounted) {
@@ -1088,6 +1110,8 @@ class _MainShell extends StatefulWidget {
     required this.syncStale,
     required this.onSyncWarning,
     required this.assistantPack,
+    required this.scheduleDisplayMode,
+    required this.onScheduleDisplayModeChanged,
     required this.onAssistantPackChanged,
     required this.onOpenDifferences,
     required this.onCloseNotificationCenter,
@@ -1117,6 +1141,8 @@ class _MainShell extends StatefulWidget {
   final bool syncStale;
   final VoidCallback onSyncWarning;
   final AssistantPack assistantPack;
+  final ScheduleDisplayMode scheduleDisplayMode;
+  final ValueChanged<ScheduleDisplayMode> onScheduleDisplayModeChanged;
   final ValueChanged<AssistantPack> onAssistantPackChanged;
   final VoidCallback onOpenDifferences;
   final VoidCallback onCloseNotificationCenter;
@@ -1190,6 +1216,8 @@ class _MainShellState extends State<_MainShell>
     final syncStale = widget.syncStale;
     final onSyncWarning = widget.onSyncWarning;
     final assistantPack = widget.assistantPack;
+    final scheduleDisplayMode = widget.scheduleDisplayMode;
+    final onScheduleDisplayModeChanged = widget.onScheduleDisplayModeChanged;
     final onAssistantPackChanged = widget.onAssistantPackChanged;
     final onOpenDifferences = widget.onOpenDifferences;
     final onCloseNotificationCenter = widget.onCloseNotificationCenter;
@@ -1227,6 +1255,7 @@ class _MainShellState extends State<_MainShell>
                     child: _TimetableScreen(
                       data: data,
                       assistantPack: assistantPack,
+                      scheduleDisplayMode: scheduleDisplayMode,
                       selectedDate: selectedDate,
                       onDateChanged: onDateChanged,
                       unreadDifference: unreadDifference,
@@ -1258,6 +1287,8 @@ class _MainShellState extends State<_MainShell>
                       onLogout: onLogout,
                       onSync: onSync,
                       assistantPack: assistantPack,
+                      scheduleDisplayMode: scheduleDisplayMode,
+                      onScheduleDisplayModeChanged: onScheduleDisplayModeChanged,
                       onAssistantPackChanged: onAssistantPackChanged,
                     ),
                   ),
@@ -1371,6 +1402,7 @@ class _TimetableScreen extends StatefulWidget {
   const new({
     required this.data,
     required this.assistantPack,
+    required this.scheduleDisplayMode,
     required this.selectedDate,
     required this.onDateChanged,
     required this.unreadDifference,
@@ -1380,6 +1412,7 @@ class _TimetableScreen extends StatefulWidget {
 
   final ImportedScheduleData data;
   final AssistantPack assistantPack;
+  final ScheduleDisplayMode scheduleDisplayMode;
   final DateTime selectedDate;
   final ValueChanged<DateTime> onDateChanged;
   final bool unreadDifference;
@@ -1416,7 +1449,8 @@ class _TimetableScreenState extends State<_TimetableScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && !_weekly) {
+    if (state == AppLifecycleState.resumed &&
+        !_weekly && widget.scheduleDisplayMode == ScheduleDisplayMode.standard) {
       widget.onDateChanged(DateTime.now());
     }
   }
@@ -1546,6 +1580,7 @@ class _TimetableScreenState extends State<_TimetableScreen>
         .where((record) => _sameDay(record.startAt, widget.selectedDate))
         .toList(growable: false);
 
+    final scrolling = widget.scheduleDisplayMode != ScheduleDisplayMode.standard;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onHorizontalDragEnd: (details) {
@@ -1553,7 +1588,7 @@ class _TimetableScreenState extends State<_TimetableScreen>
         if (velocity.abs() < 180) {
           return;
         }
-        if (!_weekly) {
+        if (!_weekly && !scrolling) {
           widget.onDateChanged(
             widget.selectedDate.add(Duration(days: velocity < 0 ? 1 : -1)),
           );
@@ -1570,7 +1605,7 @@ class _TimetableScreenState extends State<_TimetableScreen>
               unreadDifference: widget.unreadDifference,
               hasActiveExamPeriod: widget.hasActiveExamPeriod,
               onNotificationTap: widget.onOpenDifferences,
-              onCalendarTap: () => _weekly
+              onCalendarTap: () => !scrolling && _weekly
                   ? _pickWeek()
                   : _showCalendarPicker(
                       context,
@@ -1578,8 +1613,9 @@ class _TimetableScreenState extends State<_TimetableScreen>
                       widget.onDateChanged,
                     ),
             ),
-            const SizedBox(height: 12),
-            ValueListenableBuilder<bool>(
+            if (!scrolling) ...<Widget>[
+              const SizedBox(height: 12),
+              ValueListenableBuilder<bool>(
               valueListenable: _weeklySelection,
               builder: (context, weekly, _) => _TimetableModeSelector(
                 weekly: weekly,
@@ -1587,9 +1623,18 @@ class _TimetableScreenState extends State<_TimetableScreen>
                     unawaited(_changeTimetableMode(nextWeekly)),
               ),
             ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
+            ],
             Expanded(
-              child: ValueListenableBuilder<double>(
+              child: scrolling
+                  ? ScrollDayTimetable(
+                      data: widget.data,
+                      selectedDate: widget.selectedDate,
+                      onDateChanged: widget.onDateChanged,
+                      twoColumns: widget.scheduleDisplayMode ==
+                          ScheduleDisplayMode.scrollTwoColumns,
+                    )
+                  : ValueListenableBuilder<double>(
                 valueListenable: _modeOpacity,
                 builder: (context, opacity, _) => AnimatedOpacity(
                   opacity: opacity,
@@ -2049,6 +2094,8 @@ class _AccountScreen extends StatelessWidget {
     required this.onLogout,
     required this.onSync,
     required this.assistantPack,
+    required this.scheduleDisplayMode,
+    required this.onScheduleDisplayModeChanged,
     required this.onAssistantPackChanged,
   });
 
@@ -2057,6 +2104,8 @@ class _AccountScreen extends StatelessWidget {
   final VoidCallback onLogout;
   final VoidCallback onSync;
   final AssistantPack assistantPack;
+  final ScheduleDisplayMode scheduleDisplayMode;
+  final ValueChanged<ScheduleDisplayMode> onScheduleDisplayModeChanged;
   final ValueChanged<AssistantPack> onAssistantPackChanged;
   static const _widgetPinChannel = MethodChannel('better_phenikaa/widget_pin');
   static const _assistantTestChannel = MethodChannel(
@@ -2305,6 +2354,51 @@ class _AccountScreen extends StatelessWidget {
                   RepaintBoundary(child: _InfoPanel(data: data)), 
                   const SizedBox(height: 12),
                   const RepaintBoundary(child: AppThemeSettingButton()),
+                  const SizedBox(height: 12),
+                  AppThemePanel(
+                    padding: const EdgeInsets.all(12),
+                    elevated: false,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text('Dạng hiển thị lịch học', style: TextStyle(
+                          color: palette.textPrimary, fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 5),
+                        Text('Chọn chế độ xem lịch, áp dụng theo Theme Engine hiện tại.',
+                          style: TextStyle(color: palette.textSecondary, fontSize: 12)),
+                        const SizedBox(height: 10),
+                        PopupMenuButton<ScheduleDisplayMode>(
+                          tooltip: 'Chọn dạng hiển thị lịch học',
+                          onSelected: onScheduleDisplayModeChanged,
+                          itemBuilder: (context) => ScheduleDisplayMode.values
+                              .map((mode) => PopupMenuItem<ScheduleDisplayMode>(
+                                value: mode,
+                                child: Row(children: <Widget>[
+                                  Expanded(child: Text(mode.label)),
+                                  if (mode == scheduleDisplayMode)
+                                    Icon(Icons.check, color: palette.primary),
+                                ]),
+                              )).toList(),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: palette.primary),
+                              borderRadius: BorderRadius.circular(
+                                palette.geometry == AppThemeGeometry.rounded ? palette.radius : 0),
+                            ),
+                            child: Row(children: <Widget>[
+                              Icon(Icons.view_day_outlined, color: palette.primary),
+                              const SizedBox(width: 10),
+                              Expanded(child: Text(scheduleDisplayMode.label,
+                                style: TextStyle(color: palette.textPrimary,
+                                  fontWeight: FontWeight.w700))),
+                              const Icon(Icons.arrow_drop_down),
+                            ]),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   Text(
                     'Model Trợ Lí',
