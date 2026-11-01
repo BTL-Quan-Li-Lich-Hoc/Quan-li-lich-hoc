@@ -295,7 +295,7 @@ final class QldtNativeTransport {
     final raw = envelope['Data'];
     if (raw is! List) return const <Map<String, dynamic>>[];
     return raw
-        .whereType<Map>()
+        .whereType<Map<dynamic, dynamic>>()
         .map((row) => row.cast<String, dynamic>())
         .toList();
   }
