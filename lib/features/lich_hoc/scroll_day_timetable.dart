@@ -2,8 +2,11 @@ import 'package:better_phenikaa_schedule/features/dang_nhap_qldt/qldt_models.dar
 import 'package:better_phenikaa_schedule/features/giao_dien/tien_mon_premium/schedule/tien_mon_schedule_views.dart';
 import 'package:better_phenikaa_schedule/features/giao_dien/tien_mon_premium/tien_mon_premium_contract.dart';
 import 'package:better_phenikaa_schedule/theme/app_theme.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/physics.dart';
 
 enum ScheduleDisplayMode {
   standard,
@@ -16,7 +19,7 @@ enum ScheduleDisplayMode {
 
   String get description => switch (this) {
     standard => 'Giữ kiểu lịch ngày và tuần của Cooc.',
-    scroll => 'Cuộn ngày liên tục với thẻ môn học hai cột so le.',
+    scroll => 'Cuộn dọc các ngày, trong mỗi ngày môn học xếp so le.',
   };
 }
 
@@ -56,6 +59,7 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
   _StudySession _filter = _StudySession.all;
   bool _changingExtent = false;
   bool _programmaticStrip = false;
+  int _stripAnimationSerial = 0;
   double _stripWidth = 320;
 
   @override
@@ -140,41 +144,54 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
 
   void _showActiveSection() {
     if (!mounted) return;
-    final context = _sectionKeys[_key(_active)]?.currentContext;
-    if (context != null) {
-      Scrollable.ensureVisible(context, duration: Duration.zero, alignment: 0.0);
-    }
+    final target = _sectionKeys[_key(_active)]?.currentContext;
+    if (target == null) return;
+    unawaited(Scrollable.ensureVisible(
+      target,
+      duration: const Duration(milliseconds: 440),
+      curve: Curves.easeInOutCubic,
+      alignment: .02,
+    ));
   }
 
   void _resetToDay(DateTime day, {required bool notifyParent}) {
+    final next = _onlyDate(day);
+    if (_same(next, _active)) {
+      _showActiveSection();
+      return;
+    }
     setState(() {
-      _active = _onlyDate(day);
-      _first = _active.subtract(const Duration(days: 1));
-      _last = _active.add(const Duration(days: 14));
+      _active = next;
+      _first = next.subtract(const Duration(days: 1));
+      _last = next.add(const Duration(days: 14));
       _sectionKeys.clear();
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       _showActiveSection();
       _centerStrip();
     });
-    if (notifyParent) widget.onDateChanged(_active);
+    if (notifyParent) widget.onDateChanged(next);
   }
 
   void _centerStrip() {
     if (!mounted || !_stripController.hasClients) return;
     final delta = _active.difference(_stripOrigin).inDays;
-    final target = (_stripMiddle + delta) * _pillExtent -
+    final raw = (_stripMiddle + delta) * _pillExtent -
         (_stripWidth - _pillExtent) / 2;
+    final position = _stripController.position;
+    final target = raw.clamp(position.minScrollExtent, position.maxScrollExtent).toDouble();
+    if ((target - _stripController.offset).abs() < 1) return;
+    final serial = ++_stripAnimationSerial;
     _programmaticStrip = true;
-    _stripController.jumpTo(
-      target.clamp(
-        _stripController.position.minScrollExtent,
-        _stripController.position.maxScrollExtent,
-      ).toDouble(),
-    );
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    unawaited(_stripController.animateTo(
+      target,
+      duration: const Duration(milliseconds: 340),
+      curve: Curves.easeInOutCubic,
+    ).whenComplete(() {
+      if (!mounted || serial != _stripAnimationSerial) return;
       _programmaticStrip = false;
-    });
+    }));
   }
 
   void _onStripEnd() {
@@ -296,191 +313,169 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
     );
   }
 
-  // Giữ dữ liệu lịch thật; chỉ đổi cách trình bày card trong chế độ Scroll.
-  // Các tỷ lệ chiều cao lấy từ bản HTML tham chiếu, không phải ảnh trống.
-  Widget _lessonCard(ScheduleRecord record, int index) {
-    // Tất cả thẻ Scroll có kích thước bằng nhau ở cả hai cột.
-    const double cardHeight = 190;
-    final isOngoing = !DateTime.now().isBefore(record.startAt) &&
-        DateTime.now().isBefore(record.endAt);
-    final period = record.periodStart == null
-        ? 'Môn học'
+  // Thẻ môn học cùng cỡ, bốn sắc độ luôn lấy từ Theme Engine.
+  Widget _lessonCard(ScheduleRecord record, int position, DateTime day) {
+    final palette = appThemePalette;
+    final sequence = (position + day.day + day.month) % 4;
+    final hue = switch (sequence) {
+      0 => palette.primary,
+      1 => palette.accent,
+      2 => palette.cardAlt,
+      _ => palette.primary,
+    };
+    final mix = switch (sequence) { 0 => .23, 1 => .22, 2 => .55, _ => .13 };
+    final surface = Color.lerp(palette.card, hue, mix)!;
+    final radius = palette.geometry == AppThemeGeometry.rounded
+        ? palette.radius.clamp(10.0, 17.0).toDouble() : 8.0;
+    final period = record.periodStart == null ? ''
         : 'Tiết ${record.periodStart}${record.periodEnd == null ? '' : '–${record.periodEnd}'}';
+    final now = DateTime.now();
+    final ongoing = !now.isBefore(record.startAt) && now.isBefore(record.endAt);
 
     return TweenAnimationBuilder<double>(
-      key: ValueKey<String>('scroll-card-${record.startAt.millisecondsSinceEpoch}-${record.subjectName}'),
+      key: ValueKey<String>('scroll-subject-${_key(day)}-${record.startAt.millisecondsSinceEpoch}-${record.subjectName}'),
       tween: Tween<double>(begin: 0, end: 1),
-      duration: Duration(milliseconds: 230 + (index % 4) * 45),
+      duration: Duration(milliseconds: 280 + (position % 4) * 45),
       curve: Curves.easeOutCubic,
-      builder: (context, progress, child) => Opacity(
-        opacity: progress,
-        child: Transform.translate(
-          offset: Offset(0, (1 - progress) * 9),
-          child: child,
-        ),
+      builder: (context, t, child) => Opacity(
+        opacity: t,
+        child: Transform.translate(offset: Offset(0, (1 - t) * 12), child: child),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Padding(
-              padding: const EdgeInsets.fromLTRB(2, 3, 2, 7),
-              child: Text(
-                period,
-                maxLines: 1,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF526174),
-                ),
-              ),
-            ),
-          _ScrollTouchableCard(
-            onTap: () => _details(record),
-            child: Container(
-              width: double.infinity,
-              height: cardHeight,
-              padding: const EdgeInsets.all(11),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: <Color>[Color(0xFF64CBFF), Color(0xFF4DBBF6)],
-                ),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: const Color(0xFFE6F8FF)),
-                boxShadow: const <BoxShadow>[
-                  BoxShadow(color: Color(0x380E8ED1), offset: Offset(0, 5)),
-                  BoxShadow(color: Color(0x320E74AE), blurRadius: 16, offset: Offset(0, 9)),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Row(children: <Widget>[
-                    Flexible(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: const Color(0xC8FFFFFF),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Text(
-                          '${_clock(record.startAt)}–${_clock(record.endAt)}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF07567E)),
-                        ),
-                      ),
-                    ),
-                    if (isOngoing) ...<Widget>[
-                      const SizedBox(width: 3),
-                      const Icon(Icons.circle, color: Color(0xFF0D8860), size: 9),
-                    ],
-                  ]),
-                  const SizedBox(height: 5),
-                  Text(
-                    record.subjectName,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: const Color(0xFF172337),
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
-                      height: 1.22,
-                    ),
-                  ),
-                  ...<Widget>[
-                    const SizedBox(height: 11),
-                    if (record.room.isNotEmpty)
-                      Row(children: <Widget>[
-                        const Icon(Icons.place_outlined, size: 13, color: Color(0xFF07567E)),
-                        const SizedBox(width: 3),
-                        Expanded(
-                          child: Text(record.room,
-                            maxLines: 1, overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF07567E))),
-                        ),
-                      ]),
-                    if (record.className.isNotEmpty) ...<Widget>[
-                      const SizedBox(height: 4),
-                      Text(
-                        record.className,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 10, color: Color(0xFF27384D)),
-                      ),
-                    ],
-                  ],
-                ],
-              ),
-            ),
+      child: _ScrollTouchableCard(
+        onTap: () => _details(record),
+        child: Container(
+          width: double.infinity,
+          height: 124,
+          padding: const EdgeInsets.all(11),
+          decoration: BoxDecoration(
+            color: surface,
+            borderRadius: BorderRadius.circular(radius),
+            boxShadow: <BoxShadow>[
+              BoxShadow(color: palette.shadow.withValues(alpha: .13),
+                blurRadius: 12, offset: const Offset(0, 3)),
+            ],
           ),
-        ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(children: <Widget>[
+                Expanded(child: Text(
+                  '${_clock(record.startAt)}–${_clock(record.endAt)}',
+                  maxLines: 1, overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: palette.primary, fontSize: 10,
+                    fontWeight: FontWeight.w800),
+                )),
+                if (ongoing) Icon(Icons.circle, size: 9, color: palette.accent),
+              ]),
+              const SizedBox(height: 7),
+              Expanded(child: Text(
+                record.subjectName,
+                maxLines: 3, overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: palette.textPrimary,
+                  fontSize: 12, height: 1.23, fontWeight: FontWeight.w800),
+              )),
+              if (record.room.isNotEmpty)
+                Text(record.room, maxLines: 1, overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: palette.textSecondary,
+                    fontSize: 10, fontWeight: FontWeight.w600)),
+              if (period.isNotEmpty)
+                Text(period, maxLines: 1, overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: palette.textSecondary, fontSize: 10)),
+            ],
+          ),
+        ),
       ),
     );
   }
 
+  // Một khối = một ngày, không áp viền đen của hình phác thảo.
   Widget _daySection(DateTime day) {
     final palette = appThemePalette;
     final items = _onDate(day);
-    final title = Text(_dayLabel(day),
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-          color: palette.textPrimary, fontWeight: FontWeight.w800));
-    final contents = items.isEmpty
-        ? <Widget>[
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              child: Text('Không có lịch học',
-                  style: TextStyle(color: palette.textSecondary)),
-            ),
-          ]
-        : <Widget>[_twoColumnCards(items)];
-    return Padding(
-      key: _keyFor(day),
-      padding: const EdgeInsets.only(bottom: 18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(children: <Widget>[
-            Expanded(child: title),
-            Text('${items.length} môn',
-                style: TextStyle(color: palette.textSecondary, fontSize: 11)),
-          ]),
-          const SizedBox(height: 10),
-          ...contents,
-          Divider(color: palette.border),
-        ],
-      ),
-    );
-  }
-
-  Widget _twoColumnCards(List<ScheduleRecord> items) {
-    // Hai cột cùng chiều rộng, thẻ cùng chiều cao, chung một luồng cuộn dọc.
     final left = <int>[];
     final right = <int>[];
     for (var i = 0; i < items.length; i++) {
       (i.isEven ? left : right).add(i);
     }
+    final radius = palette.geometry == AppThemeGeometry.rounded
+        ? palette.radius.clamp(14.0, 23.0).toDouble() : 10.0;
+    final dateBadge = Container(
+      height: 44,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: palette.cardAlt,
+        borderRadius: BorderRadius.circular(radius * .7),
+      ),
+      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+        Icon(Icons.calendar_today_outlined, size: 14, color: palette.primary),
+        const SizedBox(width: 6),
+        Flexible(child: Text('${_digits(day.day)}/${_digits(day.month)}',
+          maxLines: 1, overflow: TextOverflow.ellipsis,
+          style: TextStyle(color: palette.textPrimary,
+            fontSize: 13, fontWeight: FontWeight.w800))),
+      ]),
+    );
     Widget column(List<int> indices) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        for (final index in indices)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 17),
-            child: _lessonCard(items[index], index),
-          ),
+        for (final index in indices) ...<Widget>[
+          _lessonCard(items[index], index, day),
+          const SizedBox(height: 12),
+        ],
       ],
     );
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Expanded(child: column(left)),
-        const SizedBox(width: 12),
-        Expanded(child: column(right)),
-      ],
+    return Padding(
+      key: _keyFor(day),
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        padding: const EdgeInsets.all(11),
+        decoration: BoxDecoration(
+          color: palette.surface,
+          borderRadius: BorderRadius.circular(radius),
+          boxShadow: <BoxShadow>[
+            BoxShadow(color: palette.shadow.withValues(alpha: .09),
+              blurRadius: 12, offset: const Offset(0, 3)),
+          ],
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            if (items.isEmpty) ...<Widget>[
+              Row(children: <Widget>[
+                Expanded(child: Text(_dayLabel(day), maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: palette.textPrimary,
+                    fontSize: 12, fontWeight: FontWeight.w700))),
+                const SizedBox(width: 8),
+                dateBadge,
+              ]),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                child: Text('Không có lịch học',
+                  style: TextStyle(color: palette.textSecondary, fontSize: 12)),
+              ),
+            ] else ...<Widget>[
+              Row(crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Expanded(child: column(left)),
+                  const SizedBox(width: 12),
+                  Expanded(child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      dateBadge,
+                      const SizedBox(height: 12),
+                      column(right),
+                    ],
+                  )),
+                ],
+              ),
+              Text(_dayLabel(day), maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: palette.textSecondary,
+                  fontSize: 10, fontWeight: FontWeight.w700)),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -488,30 +483,36 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
     final palette = appThemePalette;
     final selected = _same(day, _active);
     final today = _same(day, DateTime.now());
+    final radius = palette.geometry == AppThemeGeometry.rounded
+        ? palette.radius.clamp(10.0, 16.0).toDouble() : 6.0;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
-      child: Material(
-        color: selected ? palette.primary
-            : today ? palette.cardAlt : palette.card,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(palette.radius.clamp(0, 16)),
-          side: BorderSide(color: palette.border),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOutCubic,
+        decoration: BoxDecoration(
+          color: selected ? palette.primary : today ? palette.cardAlt : palette.card,
+          borderRadius: BorderRadius.circular(radius),
+          border: Border.all(
+            color: selected ? palette.primary : palette.border.withValues(alpha: .35),
+          ),
         ),
-        child: InkWell(
-          onTap: () => _resetToDay(day, notifyParent: true),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(radius),
+            onTap: () => _resetToDay(day, notifyParent: true),
+            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               Text(day.weekday == 7 ? 'CN' : 'T${day.weekday + 1}',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700,
-                    color: selected ? palette.surface : palette.textSecondary)),
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700,
+                  color: selected ? palette.surface : palette.textSecondary)),
               Text(_digits(day.day),
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900,
-                    color: selected ? palette.surface : palette.textPrimary)),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900,
+                  color: selected ? palette.surface : palette.textPrimary)),
               Text('${_digits(day.month)}/${day.year % 100}',
-                  style: TextStyle(fontSize: 9,
-                    color: selected ? palette.surface : palette.textSecondary)),
-            ],
+                style: TextStyle(fontSize: 9,
+                  color: selected ? palette.surface : palette.textSecondary)),
+            ]),
           ),
         ),
       ),
@@ -547,14 +548,34 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  'Tháng ${_digits(_active.month)}/${_active.year} · ${_onDate(_active).length} tiết',
-                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF0284C7)),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 310),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(.10, 0), end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  ),
+                  child: Column(
+                    key: ValueKey<int>(_key(_active)),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text('Tháng ${_digits(_active.month)}/${_active.year} · ${_onDate(_active).length} môn',
+                        maxLines: 1, overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 10,
+                          fontWeight: FontWeight.w800, color: palette.primary)),
+                      Text(_dayLabel(_active), maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: palette.textPrimary,
+                          fontSize: 13, fontWeight: FontWeight.w800)),
+                    ],
+                  ),
                 ),
-                Text(_dayLabel(_active), maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: palette.textPrimary,
-                    fontSize: 13, fontWeight: FontWeight.w800)),
               ],
             ),
           ),
@@ -587,6 +608,7 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
               child: ListView.builder(
                 controller: _stripController,
                 scrollDirection: Axis.horizontal,
+                physics: const _ControlledDayScrollPhysics(),
                 itemExtent: _pillExtent,
                 itemCount: _stripMiddle * 2 + 1,
                 itemBuilder: (context, index) => _dayPill(
@@ -629,6 +651,7 @@ class _ScrollDayTimetableState extends State<ScrollDayTimetable> {
             key: _listKey,
             child: ListView.builder(
               controller: _dayController,
+              physics: const _ControlledDayScrollPhysics(),
               padding: const EdgeInsets.only(bottom: 84),
               itemCount: dayCount,
               itemBuilder: (context, index) => _daySection(
@@ -671,4 +694,22 @@ class _ScrollTouchableCardState extends State<_ScrollTouchableCard> {
       ),
     );
   }
+}
+
+class _ControlledDayScrollPhysics extends ClampingScrollPhysics {
+  const _ControlledDayScrollPhysics({super.parent});
+
+  @override
+  _ControlledDayScrollPhysics applyTo(ScrollPhysics? ancestor) =>
+      _ControlledDayScrollPhysics(parent: buildParent(ancestor));
+
+  @override
+  double get maxFlingVelocity => 1750;
+
+  @override
+  double carriedMomentum(double existingVelocity) => 0;
+
+  @override
+  Simulation? createBallisticSimulation(ScrollMetrics position, double velocity) =>
+      super.createBallisticSimulation(position, velocity.clamp(-1750.0, 1750.0).toDouble());
 }
