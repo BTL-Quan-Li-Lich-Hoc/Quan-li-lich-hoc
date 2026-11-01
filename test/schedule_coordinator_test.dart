@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:better_phenikaa_schedule/app/schedule_coordinator.dart';
 import 'package:better_phenikaa_schedule/core/contracts/models.dart';
 import 'package:better_phenikaa_schedule/core/contracts/repositories.dart';
